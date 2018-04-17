@@ -1,0 +1,70 @@
+{
+    "home": {
+        "processedBlock": 1983630,
+        "onlyInHomeDeposits": [
+            {
+                "address": "0xABb4C1399DcC28FBa3Beb76CAE2b50Be3e087353",
+                "blockHash": "0x05752a58e8e6ee0423a77cbe2d0374981265b82482a5895d21e6bb9d22f71445",
+                "blockNumber": 1983629,
+                "logIndex": 0,
+                "transactionHash": "0x368849203be2b44c2052a32c6758adcee5c5826e8d73d4130da6a67de8447665",
+                "transactionIndex": 0,
+                "transactionLogIndex": "0x0",
+                "type": "mined",
+                "id": "log_3d330d40",
+                "returnValues": {
+                    "0": "0xb8988B690910913c97A090c3a6f80FAD8b3A4683",
+                    "1": "100000000000000000",
+                    "recipient": "0xb8988B690910913c97A090c3a6f80FAD8b3A4683",
+                    "value": "100000000000000000"
+                },
+                "event": "Deposit",
+                "signature": "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c",
+                "raw": {
+                    "data": "0x000000000000000000000000b8988b690910913c97a090c3a6f80fad8b3a4683000000000000000000000000000000000000000000000000016345785d8a0000",
+                    "topics": [
+                        "0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c"
+                    ]
+                }
+            }
+        ],
+        "onlyInHomeWithdrawals": [],
+        "deposits": 95,
+        "withdrawals": 44
+    },
+    "foreign": {
+        "processedBlock": 6893925,
+        "onlyInForeignWithdrawals": [],
+        "onlyInForeignDeposits": [
+            {
+                "address": "0xE405F6872cE38a7a4Ff63DcF946236D458c2ca3a",
+                "blockHash": "0x4097e6db492a27259908579588102dbb05ab98b2762e9a41870f022c47bcc166",
+                "blockNumber": 6893924,
+                "logIndex": 3,
+                "transactionHash": "0x319ae60b85dc935bf3b0db15ba348d9a207457cb59d02615a6392f3dd3499921",
+                "transactionIndex": 0,
+                "transactionLogIndex": "0x3",
+                "type": "mined",
+                "id": "log_0c0ab5b2",
+                "returnValues": {
+                    "0": "0xb8988B690910913c97A090c3a6f80FAD8b3A4683",
+                    "1": "1000000000000000000000",
+                    "2": "0xe61c5b8fb0b06eab3df94521f499bbfe23b00dbab1103473438c8bbacdd31ae4",
+                    "recipient": "0xb8988B690910913c97A090c3a6f80FAD8b3A4683",
+                    "value": "1000000000000000000000",
+                    "transactionHash": "0xe61c5b8fb0b06eab3df94521f499bbfe23b00dbab1103473438c8bbacdd31ae4"
+                },
+                "event": "Deposit",
+                "signature": "0x1a771fe656018364a9369da21954bb3081cb08b0196c27e43ca59c7cae872737",
+                "raw": {
+                    "data": "0x000000000000000000000000b8988b690910913c97a090c3a6f80fad8b3a468300000000000000000000000000000000000000000000003635c9adc5dea00000e61c5b8fb0b06eab3df94521f499bbfe23b00dbab1103473438c8bbacdd31ae4",
+                    "topics": [
+                        "0x1a771fe656018364a9369da21954bb3081cb08b0196c27e43ca59c7cae872737"
+                    ]
+                }
+            }
+        ],
+        "deposits": 95,
+        "withdrawals": 44
+    }
+}
