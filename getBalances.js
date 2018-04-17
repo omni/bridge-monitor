@@ -25,6 +25,7 @@ async function main(){
     const homeBalanceBN = new BN(homeBalance)
     const foreignTotalSupplyBN = new BN(totalSupply)
     const diff = homeBalanceBN.minus(foreignTotalSupplyBN).toString(10)
+    console.log(diff)
     return {
       homeBalance: Web3Utils.fromWei(homeBalance),
       foreignTotalSupply: Web3Utils.fromWei(totalSupply),
