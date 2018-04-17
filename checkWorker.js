@@ -36,5 +36,5 @@ async function main(){
 }
 main().then((res) => {
   console.log(res)
-  fs.writeFileSync('./results.json', JSON.stringify(res,null,4));
+  fs.writeFileSync(__dirname + '/results.json', JSON.stringify(res,null,4));
 })
