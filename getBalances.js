@@ -29,7 +29,7 @@ async function main(){
     return {
       homeBalance: Web3Utils.fromWei(homeBalance),
       foreignTotalSupply: Web3Utils.fromWei(totalSupply),
-      diff: Web3Utils.fromWei(diff),
+      balanceDiff: Web3Utils.fromWei(diff),
       lastChecked: Math.floor(Date.now() / 1000)
     }
   } catch(e) {
