@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express')
 const app = express()
 const fs = require('fs')
+const getBalances = require('./getBalances')
 
 async function main(){
   try {
@@ -9,6 +10,7 @@ async function main(){
     return JSON.parse(content)
   } catch(e) {
     console.error(e);
+    return getBalances()
   }
 
 }
