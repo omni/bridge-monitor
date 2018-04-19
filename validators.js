@@ -104,7 +104,8 @@ async function main(){
         validators: {
           ...foreignVBalances
         }
-      }
+      },
+      lastChecked: Math.floor(Date.now() / 1000)
     }
   } catch(e) {
     console.error(e);
