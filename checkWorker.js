@@ -1,10 +1,22 @@
 const fs = require('fs')
 const getBalances = require('./getBalances')
-const eventStats = require('./eventsStats')
-getBalances().then(async (res) => {
-  console.log('res', res)
-  const events = await eventStats()
-  console.log(events)
-  const status = Object.assign(events, res);
-  fs.writeFileSync(__dirname + '/results.json', JSON.stringify(status,null,4));
-})
+const getShortEventStats = require('./getShortEventStats');
+const validators = require('./validators');
+
+async function checkWorker() {
+  try {
+    const balances = await getBalances();
+    const events = await getShortEventStats();
+    const home = Object.assign({}, balances.home, events.home)
+    const foreign = Object.assign({}, balances.foreign, events.foreign)
+    const status = Object.assign({}, balances, events, {home}, {foreign})
+    fs.writeFileSync(__dirname + '/responses/getBalances.json', JSON.stringify(status,null,4));
+    const vBalances = await validators();
+    fs.writeFileSync(__dirname + '/responses/validators.json', JSON.stringify(vBalances,null,4));
+    return status;
+  } catch(e) {
+    console.error(e)
+  }
+}
+checkWorker();
+module.exports = checkWorker;

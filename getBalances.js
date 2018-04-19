@@ -3,6 +3,7 @@ const fs = require('fs')
 const Web3 = require('web3');
 const Web3Utils = require('web3-utils')
 const BN = require('bignumber.js')
+
 const HOME_RPC_URL = process.env.HOME_RPC_URL;
 const FOREIGN_RPC_URL = process.env.FOREIGN_RPC_URL;
 const HOME_BRIDGE_ADDRESS = process.env.HOME_BRIDGE_ADDRESS;
@@ -15,7 +16,7 @@ const web3Home = new Web3(homeProvider);
 const foreignProvider = new Web3.providers.HttpProvider(FOREIGN_RPC_URL);
 const web3Foreign = new Web3(foreignProvider);
 
-const ERC677_ABI = require('./ERC677.abi');
+const ERC677_ABI = require('./abis/ERC677.abi');
 
 async function main(){
   try {
@@ -26,8 +27,12 @@ async function main(){
     const foreignTotalSupplyBN = new BN(totalSupply)
     const diff = homeBalanceBN.minus(foreignTotalSupplyBN).toString(10)
     return {
-      homeBalance: Web3Utils.fromWei(homeBalance),
-      foreignTotalSupply: Web3Utils.fromWei(totalSupply),
+      home: {
+        balance: Web3Utils.fromWei(homeBalance)
+      },
+      foreign: {
+        totalSupply: Web3Utils.fromWei(totalSupply),
+      },
       balanceDiff: Web3Utils.fromWei(diff),
       lastChecked: Math.floor(Date.now() / 1000)
     }

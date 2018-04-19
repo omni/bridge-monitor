@@ -48,8 +48,8 @@ async function main(){
     let homeWithdrawals = await homeBridge.getPastEvents('Withdraw', {fromBlock: db.home.processedBlock});
     let foreignWithdrawals = await foreignBridge.getPastEvents('Withdraw', {fromBlock: db.foreign.processedBlock});
     
-    const onlyInHomeDeposits = homeDeposits.filter(compareDepositsHome(foreignDeposits))
-    const onlyInForeignDeposits = foreignDeposits.filter(compareDepositsForeign(homeDeposits))
+    const onlyInHomeDeposits = homeDeposits.concat(db.home.onlyInHomeDeposits).filter(compareDepositsHome(foreignDeposits))
+    const onlyInForeignDeposits = foreignDeposits.concat(db.foreign.onlyInForeignDeposits).filter(compareDepositsForeign(homeDeposits))
 
     const onlyInHomeWithdrawals = homeWithdrawals.filter(compareDepositsForeign(foreignWithdrawals))
     const onlyInForeignWithdrawals = foreignWithdrawals.filter(compareDepositsHome(homeWithdrawals))
