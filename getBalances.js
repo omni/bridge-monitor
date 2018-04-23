@@ -33,7 +33,7 @@ async function main(){
       foreign: {
         totalSupply: Web3Utils.fromWei(totalSupply),
       },
-      balanceDiff: Web3Utils.fromWei(diff),
+      balanceDiff: Number(Web3Utils.fromWei(diff)),
       lastChecked: Math.floor(Date.now() / 1000)
     }
   } catch(e) {

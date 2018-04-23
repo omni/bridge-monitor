@@ -91,7 +91,7 @@ async function main(){
       const txCost = gasPrice.mul(new Web3Utils.BN(GAS_LIMIT))
       const balance = await web3Home.eth.getBalance(v)
       const leftTx = new Web3Utils.BN(balance).div(txCost).toString(10)
-      homeVBalances[v] = {balance: Web3Utils.fromWei(balance), leftTx, gasPrice: gasPrice.toString(10)}
+      homeVBalances[v] = {balance: Web3Utils.fromWei(balance), leftTx, gasPrice: Number(gasPrice.toString(10))}
     })
 
     return {

@@ -6,7 +6,9 @@ const fs = require('fs')
 async function readFile(path){
   try {
     const content = await fs.readFileSync(path);
-    return JSON.parse(content)
+    let json = JSON.parse(content)
+    const timeDiff = Math.floor(Date.now()/1000) - json.lastChecked;
+    return Object.assign({}, json, {timeDiff})
   } catch(e) {
     console.error(e);
     return {
