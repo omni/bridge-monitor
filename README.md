@@ -1,4 +1,6 @@
 # Bridge Monitor
+Deployed version:
+https://bridge-monitoring.poa.net/
 
 This tools allows you to spin up node.js server to monitor for 2 contracts on
 Home and Foreign Eth networks to check for balance difference.
@@ -8,11 +10,48 @@ On Foreign network it checks for `POA20_ADDRESS` total supply.
 Example of an API `/`:
 
 ```json
+
 {
-    "homeBalance": "4.7021411",
-    "foreignTotalSupply": "4.7021411",
-    "diff": "0",
-    "lastChecked": 1523932521
+  "home": {
+    "balance": "145.589637026290448384",
+    "deposits": 7641,
+    "withdrawals": 128
+  },
+  "foreign": {
+    "totalSupply": "164.0563811",
+    "deposits": 7642,
+    "withdrawals": 125
+  },
+  "balanceDiff": -18.466744073709553,
+  "lastChecked": 1524872762,
+  "depositsDiff": -1,
+  "withdrawalDiff": 3,
+  "timeDiff": 20
+}
+```
+/validators
+```json
+{
+  "home": {
+    "validators": {
+      "0xb8988B690910913c97A090c3a6f80FAD8b3A4683": {
+        "balance": "123.835674629",
+        "leftTx": 412785582096666,
+        "gasPrice": 1
+      }
+    }
+  },
+  "foreign": {
+    "validators": {
+      "0xb8988B690910913c97A090c3a6f80FAD8b3A4683": {
+        "balance": "10.523898627992509332",
+        "leftTx": 17539,
+        "gasPrice": 2
+      }
+    }
+  },
+  "lastChecked": 1524872829,
+  "timeDiff": 17
 }
 ```
 
