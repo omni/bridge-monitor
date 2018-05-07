@@ -17,11 +17,19 @@ const web3Foreign = new Web3(foreignProvider);
 const HOME_ABI = require('./abis/Home_bridge.abi');
 const FOREIGN_ABI = require('./abis/Foreign.abi')
 
+const BRIDGE_VALIDATORS_ABI = require('./abis/BridgeValidators.abi');
+
 async function main(){
   try {
 
     const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS);
     const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS);
+    const validatorHomeAddress = await homeBridge.methods.validatorContract().call()
+    const validatorForeignAddress = await foreignBridge.methods.validatorContract().call()
+    const homeValidators = new web3Home.eth.Contract(BRIDGE_VALIDATORS_ABI, validatorHomeAddress);
+    const foreignValidators = new web3Foreign.eth.Contract(BRIDGE_VALIDATORS_ABI, FOREIGN_BRIDGE_ADDRESS);
+    const reqSigHome = await homeValidators.methods.requiredSignatures().call()
+    const reqSigForeign = await homeValidators.methods.requiredSignatures().call()
     let homeDeposits = await homeBridge.getPastEvents('Deposit', {fromBlock: 0});
     let foreignDeposits = await foreignBridge.getPastEvents('Deposit', {fromBlock: 0});
     let homeWithdrawals = await homeBridge.getPastEvents('Withdraw', {fromBlock: 0});
@@ -32,12 +40,15 @@ async function main(){
       withdrawalDiff: homeWithdrawals.length - foreignWithdrawals.length,
       home: {
         deposits: homeDeposits.length,
-        withdrawals: homeWithdrawals.length
+        withdrawals: homeWithdrawals.length,
+        requiredSignatures: Number(reqSigHome)
       },
       foreign: {
         deposits: foreignDeposits.length,
-        withdrawals: foreignWithdrawals.length
-      }
+        withdrawals: foreignWithdrawals.length,
+        requiredSignatures: Number(reqSigForeign)
+      },
+      requiredSignaturesMatch: reqSigHome === reqSigForeign
     }
   } catch(e) {
     console.error(e);
