@@ -51,7 +51,10 @@ Example of an API `/`:
     }
   },
   "lastChecked": 1524872829,
-  "timeDiff": 17
+  "timeDiff": 17,
+  "homeOk": true,
+  "foreignOk": true,
+  "ok": true
 }
 ```
 
@@ -65,6 +68,7 @@ FOREIGN_BRIDGE_ADDRESS=0xE405F6872cE38a7a4Ff63DcF946236D458c2ca3a
 POA20_ADDRESS=0x6F794fb14d01f7551C1fe5614FDDf5895A2e82d3
 GAS_PRICE_SPEED_TYPE=standard
 GAS_LIMIT=300000
+LEFT_TX_THRESHOLD=100
 ```
 
 ```bash
