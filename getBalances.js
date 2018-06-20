@@ -1,4 +1,5 @@
 require('dotenv').config();
+const logger = require('./logger')('getBalances');
 const fs = require('fs')
 const Web3 = require('web3');
 const Web3Utils = require('web3-utils')
@@ -20,12 +21,15 @@ const ERC677_ABI = require('./abis/ERC677.abi');
 
 async function main(){
   try {
+    logger.debug('calling web3Home.eth.getBalance');
     const homeBalance = await web3Home.eth.getBalance(HOME_BRIDGE_ADDRESS)
     const tokenContract = new web3Foreign.eth.Contract(ERC677_ABI, POA20_ADDRESS);
+    logger.debug('calling tokenContract.methods.totalSupply()');
     const totalSupply = await tokenContract.methods.totalSupply().call()
     const homeBalanceBN = new BN(homeBalance)
     const foreignTotalSupplyBN = new BN(totalSupply)
     const diff = homeBalanceBN.minus(foreignTotalSupplyBN).toString(10)
+    logger.debug("Done");
     return {
       home: {
         balance: Web3Utils.fromWei(homeBalance)
@@ -37,7 +41,8 @@ async function main(){
       lastChecked: Math.floor(Date.now() / 1000)
     }
   } catch(e) {
-    console.error(e);
+    logger.error(e);
+    throw e;
   }
 
 }
