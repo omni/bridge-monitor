@@ -7,59 +7,91 @@ Home and Foreign Eth networks to check for balance difference.
 On Home network it checks for `HOME_BRIDGE_ADDRESS` balance
 On Foreign network it checks for `POA20_ADDRESS` total supply.
 
-Example of an API `/`:
+Example of an API 
+
+* `GET /` - check contract balances & tx numbers
 
 ```json
 
 {
-  "home": {
-    "balance": "145.589637026290448384",
-    "deposits": 7641,
-    "withdrawals": 128
-  },
-  "foreign": {
-    "totalSupply": "164.0563811",
-    "deposits": 7642,
-    "withdrawals": 125
-  },
-  "balanceDiff": -18.466744073709553,
-  "lastChecked": 1524872762,
-  "depositsDiff": -1,
-  "withdrawalDiff": 3,
-  "timeDiff": 20
+    "home": {
+        "balance": "3710077.6896438415780044",
+        "deposits": 481,
+        "withdrawals": 221,
+        "requiredSignatures": 2
+    },
+    "foreign": {
+        "totalSupply": "3710077.6896438415780044",
+        "deposits": 481,
+        "withdrawals": 221,
+        "requiredSignatures": 2
+    },
+    "balanceDiff": 0,
+    "lastChecked": 1529511982,
+    "depositsDiff": 0,
+    "withdrawalDiff": 0,
+    "requiredSignaturesMatch": true
 }
 ```
-/validators
+
+* `GET /validators` - check validators balances
 ```json
 {
-  "home": {
-    "validators": {
-      "0xb8988B690910913c97A090c3a6f80FAD8b3A4683": {
-        "balance": "123.835674629",
-        "leftTx": 412785582096666,
-        "gasPrice": 1
-      }
-    }
-  },
-  "foreign": {
-    "validators": {
-      "0xb8988B690910913c97A090c3a6f80FAD8b3A4683": {
-        "balance": "10.523898627992509332",
-        "leftTx": 17539,
-        "gasPrice": 2
-      }
-    }
-  },
-  "lastChecked": 1524872829,
-  "timeDiff": 17,
-  "homeOk": true,
-  "foreignOk": true,
-  "ok": true
+    "home": {
+        "validators": {
+            "0x35DC13c72A9C09C8AEEBD0490C7228C43Ccc38Cd": {
+                "balance": "19.994900374",
+                "leftTx": 66649667913333,
+                "gasPrice": 1
+            },
+            "0x5D44BC8642947685F45004c936245B969F9709a6": {
+                "balance": "19.993736069",
+                "leftTx": 66645786896666,
+                "gasPrice": 1
+            },
+            "0x284877074B986A78F01D7Eb1f34B6043b1719002": {
+                "balance": "19.995139875",
+                "leftTx": 66650466250000,
+                "gasPrice": 1
+            }
+        }
+    },
+    "foreign": {
+        "validators": {
+            "0x35DC13c72A9C09C8AEEBD0490C7228C43Ccc38Cd": {
+                "balance": "19.084023268196",
+                "leftTx": 28915,
+                "gasPrice": 2.2
+            },
+            "0x5D44BC8642947685F45004c936245B969F9709a6": {
+                "balance": "19.086724777075",
+                "leftTx": 28919,
+                "gasPrice": 2.2
+            },
+            "0x284877074B986A78F01D7Eb1f34B6043b1719002": {
+                "balance": "19.050074813935",
+                "leftTx": 28863,
+                "gasPrice": 2.2
+            }
+        }
+    },
+    "lastChecked": 1529512164
+}
+```
+
+* `GET /eventsStats` - check unprocessed events
+```json
+{
+    "onlyInHomeDeposits": [],
+    "onlyInForeignDeposits": [],
+    "onlyInHomeWithdrawals": [],
+    "onlyInForeignWithdrawals": [],
+    "lastChecked": 1529512436
 }
 ```
 
 # How to run
-Create .env file
+Create .env file (see `.env.example` for parameters reference)
 ```bash
 HOME_RPC_URL=https://sokol.poa.network
 FOREIGN_RPC_URL=https://kovan.infura.io/mew
@@ -68,17 +100,27 @@ FOREIGN_BRIDGE_ADDRESS=0xE405F6872cE38a7a4Ff63DcF946236D458c2ca3a
 POA20_ADDRESS=0x6F794fb14d01f7551C1fe5614FDDf5895A2e82d3
 GAS_PRICE_SPEED_TYPE=standard
 GAS_LIMIT=300000
+GAS_PRICE_FALLBACK=21
 LEFT_TX_THRESHOLD=100
 ```
 
 ```bash
 npm i
+# check balances of contracts and validators
 node checkWorker.js
+# check unprocessed events
+node checkWorker2.js
+# run web interface
 node index.js
 ```
 
-You can create cron job to run worker:
+To enabled debug logging, set `DEBUG=1` env variable.
+
+You can create cron job to run workers (see `crontab.example` for reference):
 ```bash
-crontab -e
-* * * * * cd /bridge-monitor; node /bridge-monitor/checkWorker.js
+#crontab -e
+*/4 * * * * cd $HOME/bridge-monitor; node checkWorker.js >>cronWorker.out 2>>cronWorker.err
+*/5 * * * * cd $HOME/bridge-monitor; node checkWorker2.js >>cronWorker2.out 2>>cronWorker2.err
 ```
+
+You can run web interface via [pm2](https://www.npmjs.com/package/pm2) or similar supervisor program.
