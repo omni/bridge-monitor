@@ -40,15 +40,21 @@ async function main(){
   try {
     const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS);
     const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS);
-    logger.debug("calling homeBridge.getPastEvents('Deposit')");
-    let homeDeposits = await homeBridge.getPastEvents('Deposit', {fromBlock: HOME_DEPLOYMENT_BLOCK});
-    logger.debug("calling foreignBridge.getPastEvents('Deposit')");
-    let foreignDeposits = await foreignBridge.getPastEvents('Deposit', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
-    logger.debug("calling homeBridge.getPastEvents('Withdraw')");
-    let homeWithdrawals = await homeBridge.getPastEvents('Withdraw', {fromBlock: HOME_DEPLOYMENT_BLOCK});
-    logger.debug("calling foreignBridge.getPastEvents('Withdraw')");
-    let foreignWithdrawals = await foreignBridge.getPastEvents('Withdraw', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
-    
+    logger.debug("calling homeBridge.getPastEvents('UserRequestForSignature')");
+    let homeDeposits = await homeBridge.getPastEvents('UserRequestForSignature', {fromBlock: HOME_DEPLOYMENT_BLOCK});
+    logger.debug("calling foreignBridge.getPastEvents('RelayedMessage')");
+    let foreignDeposits = await foreignBridge.getPastEvents('RelayedMessage', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
+    logger.debug("calling homeBridge.getPastEvents('AffirmationCompleted')");
+    let homeWithdrawals = await homeBridge.getPastEvents('AffirmationCompleted', {fromBlock: HOME_DEPLOYMENT_BLOCK});
+    logger.debug("calling foreignBridge.getPastEvents('UserRequestForAffirmation')");
+    let foreignWithdrawals = await foreignBridge.getPastEvents('UserRequestForAffirmation', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK}); // Transfer in case of erc20-erc20
+
+    /*
+      eventContractAddress: process.env.ERC20_TOKEN_ADDRESS,
+      eventAbi: erc20Abi,
+      eventFilter: { to: process.env.FOREIGN_BRIDGE_ADDRESS },
+    * */
+
     const onlyInHomeDeposits = homeDeposits.filter(compareDepositsHome(foreignDeposits))
     const onlyInForeignDeposits = foreignDeposits.concat([]).filter(compareDepositsForeign(homeDeposits))
 

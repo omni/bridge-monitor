@@ -36,14 +36,14 @@ async function main(){
     const reqSigHome = await homeValidators.methods.requiredSignatures().call()
     logger.debug("calling foreignValidators.methods.requiredSignatures().call()");
     const reqSigForeign = await foreignValidators.methods.requiredSignatures().call()
-    logger.debug("calling homeBridge.getPastEvents('Deposit')");
-    let homeDeposits = await homeBridge.getPastEvents('Deposit', {fromBlock: HOME_DEPLOYMENT_BLOCK});
-    logger.debug("calling foreignBridge.getPastEvents('Deposit')");
-    let foreignDeposits = await foreignBridge.getPastEvents('Deposit', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
-    logger.debug("calling homeBridge.getPastEvents('Withdraw')");
-    let homeWithdrawals = await homeBridge.getPastEvents('Withdraw', {fromBlock: HOME_DEPLOYMENT_BLOCK});
-    logger.debug("calling foreignBridge.getPastEvents('Withdraw')");
-    let foreignWithdrawals = await foreignBridge.getPastEvents('Withdraw', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
+    logger.debug("calling homeBridge.getPastEvents('UserRequestForSignature')");
+    let homeDeposits = await homeBridge.getPastEvents('UserRequestForSignature', {fromBlock: HOME_DEPLOYMENT_BLOCK});
+    logger.debug("calling foreignBridge.getPastEvents('RelayedMessage')");
+    let foreignDeposits = await foreignBridge.getPastEvents('RelayedMessage', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
+    logger.debug("calling homeBridge.getPastEvents('AffirmationCompleted')");
+    let homeWithdrawals = await homeBridge.getPastEvents('AffirmationCompleted', {fromBlock: HOME_DEPLOYMENT_BLOCK});
+    logger.debug("calling foreignBridge.getPastEvents('UserRequestForAffirmation')");
+    let foreignWithdrawals = await foreignBridge.getPastEvents('UserRequestForAffirmation', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK}); // Transfer
     logger.debug("Done");
     return {
       depositsDiff: homeDeposits.length - foreignDeposits.length,
