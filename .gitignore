@@ -4,3 +4,4 @@ responses/*
 !responses/.gitkeep
 *.err
 *.out
+.idea
