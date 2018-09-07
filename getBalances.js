@@ -23,15 +23,16 @@ const HOME_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
 async function main(isErcToErcMode){
   try {
     if (isErcToErcMode) {
-      logger.debug('calling web3Foreign.eth.getBalance');
-      const foreignBalance = await web3Foreign.eth.getBalance(FOREIGN_BRIDGE_ADDRESS)
+      const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, POA20_ADDRESS)
+      logger.debug('calling erc20Contract.methods.balanceOf');
+      const foreignErc20Balance = await erc20Contract.methods.balanceOf(FOREIGN_BRIDGE_ADDRESS).call()
       const homeBridge = new web3Home.eth.Contract(HOME_ERC_ABI, HOME_BRIDGE_ADDRESS);
       logger.debug('calling homeBridge.methods.erc677token');
       const tokenAddress = await homeBridge.methods.erc677token().call()
       const tokenContract = new web3Home.eth.Contract(ERC677_ABI, tokenAddress);
       logger.debug('calling tokenContract.methods.totalSupply()');
       const totalSupply = await tokenContract.methods.totalSupply().call()
-      const foreignBalanceBN = new BN(foreignBalance)
+      const foreignBalanceBN = new BN(foreignErc20Balance)
       const foreignTotalSupplyBN = new BN(totalSupply)
       const diff = foreignBalanceBN.minus(foreignTotalSupplyBN).toString(10)
       logger.debug("Done");
@@ -40,7 +41,7 @@ async function main(isErcToErcMode){
           totalSupply: Web3Utils.fromWei(totalSupply),
         },
         foreign: {
-          balance: Web3Utils.fromWei(foreignBalance)
+          erc20Balance: Web3Utils.fromWei(foreignErc20Balance)
         },
         balanceDiff: Number(Web3Utils.fromWei(diff)),
         lastChecked: Math.floor(Date.now() / 1000)
