@@ -11,11 +11,11 @@ const { HOME_BRIDGE_ADDRESS, HOME_RPC_URL } = process.env
 const homeProvider = new Web3.providers.HttpProvider(HOME_RPC_URL)
 const web3Home = new Web3(homeProvider)
 
-const HOME_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
+const HOME_ERC_TO_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
 
 async function checkWorker() {
   try {
-    const homeBridge = new web3Home.eth.Contract(HOME_ERC_ABI, HOME_BRIDGE_ADDRESS)
+    const homeBridge = new web3Home.eth.Contract(HOME_ERC_TO_ERC_ABI, HOME_BRIDGE_ADDRESS)
     const bridgeModeHash = await homeBridge.methods.getBridgeMode().call()
     const bridgeMode = decodeBridgeMode(bridgeModeHash)
     logger.debug('Bridge mode:', bridgeMode)

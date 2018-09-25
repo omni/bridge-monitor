@@ -22,7 +22,7 @@ const web3Foreign = new Web3(foreignProvider)
 
 const ERC20_ABI = require('./abis/ERC20.abi')
 const ERC677_ABI = require('./abis/ERC677.abi')
-const HOME_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
+const HOME_ERC_TO_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
 const HOME_ERC_TO_NATIVE_ABI = require('./abis/HomeBridgeErcToNative.abi')
 const BLOCK_REWARD_ABI = require('./abis/IBlockReward.abi')
 
@@ -34,7 +34,7 @@ async function main(bridgeMode) {
       const foreignErc20Balance = await erc20Contract.methods
         .balanceOf(FOREIGN_BRIDGE_ADDRESS)
         .call()
-      const homeBridge = new web3Home.eth.Contract(HOME_ERC_ABI, HOME_BRIDGE_ADDRESS)
+      const homeBridge = new web3Home.eth.Contract(HOME_ERC_TO_ERC_ABI, HOME_BRIDGE_ADDRESS)
       logger.debug('calling homeBridge.methods.erc677token')
       const tokenAddress = await homeBridge.methods.erc677token().call()
       const tokenContract = new web3Home.eth.Contract(ERC677_ABI, tokenAddress)

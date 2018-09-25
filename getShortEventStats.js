@@ -19,10 +19,10 @@ const web3Home = new Web3(homeProvider)
 const foreignProvider = new Web3.providers.HttpProvider(FOREIGN_RPC_URL)
 const web3Foreign = new Web3(foreignProvider)
 
-const HOME_NATIVE_ABI = require('./abis/HomeBridgeNativeToErc.abi')
-const FOREIGN_NATIVE_ABI = require('./abis/ForeignBridgeNativeToErc.abi')
-const HOME_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
-const FOREIGN_ERC_ABI = require('./abis/ForeignBridgeErcToErc.abi')
+const HOME_NATIVE_TO_ERC_ABI = require('./abis/HomeBridgeNativeToErc.abi')
+const FOREIGN_NATIVE_TO_ERC_ABI = require('./abis/ForeignBridgeNativeToErc.abi')
+const HOME_ERC_TO_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
+const FOREIGN_ERC_TO_ERC_ABI = require('./abis/ForeignBridgeErcToErc.abi')
 const HOME_ERC_TO_NATIVE_ABI = require('./abis/HomeBridgeErcToNative.abi')
 const FOREIGN_ERC_TO_NATIVE_ABI = require('./abis/ForeignBridgeErcToNative.abi')
 const ERC20_ABI = require('./abis/ERC20.abi')
@@ -33,11 +33,11 @@ async function main(bridgeMode) {
     let HOME_ABI = null
     let FOREIGN_ABI = null
     if (bridgeMode === BRIDGE_MODES.NATIVE_TO_ERC) {
-      HOME_ABI = HOME_NATIVE_ABI
-      FOREIGN_ABI = FOREIGN_NATIVE_ABI
+      HOME_ABI = HOME_NATIVE_TO_ERC_ABI
+      FOREIGN_ABI = FOREIGN_NATIVE_TO_ERC_ABI
     } else if (bridgeMode === BRIDGE_MODES.ERC_TO_ERC) {
-      HOME_ABI = HOME_ERC_ABI
-      FOREIGN_ABI = FOREIGN_ERC_ABI
+      HOME_ABI = HOME_ERC_TO_ERC_ABI
+      FOREIGN_ABI = FOREIGN_ERC_TO_ERC_ABI
     } else if (bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE) {
       HOME_ABI = HOME_ERC_TO_NATIVE_ABI
       FOREIGN_ABI = FOREIGN_ERC_TO_NATIVE_ABI

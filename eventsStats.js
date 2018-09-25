@@ -19,10 +19,10 @@ const web3Home = new Web3(homeProvider)
 const foreignProvider = new Web3.providers.HttpProvider(FOREIGN_RPC_URL)
 const web3Foreign = new Web3(foreignProvider)
 
-const HOME_NATIVE_ABI = require('./abis/HomeBridgeNativeToErc.abi')
-const FOREIGN_NATIVE_ABI = require('./abis/ForeignBridgeNativeToErc.abi')
-const HOME_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
-const FOREIGN_ERC_ABI = require('./abis/ForeignBridgeErcToErc.abi')
+const HOME_NATIVE_TO_ERC_ABI = require('./abis/HomeBridgeNativeToErc.abi')
+const FOREIGN_NATIVE_TO_ERC_ABI = require('./abis/ForeignBridgeNativeToErc.abi')
+const HOME_ERC_TO_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
+const FOREIGN_ERC_TO_ERC_ABI = require('./abis/ForeignBridgeErcToErc.abi')
 const ERC20_ABI = require('./abis/ERC20.abi')
 
 function compareDepositsHome(foreign) {
@@ -81,13 +81,13 @@ function compareTransferForeign(home) {
 
 async function main() {
   try {
-    const homeErcBridge = new web3Home.eth.Contract(HOME_ERC_ABI, HOME_BRIDGE_ADDRESS)
+    const homeErcBridge = new web3Home.eth.Contract(HOME_ERC_TO_ERC_ABI, HOME_BRIDGE_ADDRESS)
     const bridgeModeHash = await homeErcBridge.methods.getBridgeMode().call()
     const bridgeMode = decodeBridgeMode(bridgeModeHash)
     const isErcToErcMode = bridgeMode === BRIDGE_MODES.ERC_TO_ERC_MODE
     logger.debug('isErcToErcMode', isErcToErcMode)
-    const HOME_ABI = isErcToErcMode ? HOME_ERC_ABI : HOME_NATIVE_ABI
-    const FOREIGN_ABI = isErcToErcMode ? FOREIGN_ERC_ABI : FOREIGN_NATIVE_ABI
+    const HOME_ABI = isErcToErcMode ? HOME_ERC_TO_ERC_ABI : HOME_NATIVE_TO_ERC_ABI
+    const FOREIGN_ABI = isErcToErcMode ? FOREIGN_ERC_TO_ERC_ABI : FOREIGN_NATIVE_TO_ERC_ABI
     const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS)
     const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS)
     const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, POA20_ADDRESS)
