@@ -1,7 +1,7 @@
 require('dotenv').config();
 const logger = require('./logger')('eventsStats');
 const Web3 = require('web3');
-const { existsErc677Token } = require('./utils')
+const { decodeBridgeMode, BRIDGE_MODES } = require('./utils/bridgeMode')
 const HOME_RPC_URL = process.env.HOME_RPC_URL;
 const FOREIGN_RPC_URL = process.env.FOREIGN_RPC_URL;
 const HOME_BRIDGE_ADDRESS = process.env.HOME_BRIDGE_ADDRESS;
@@ -62,7 +62,10 @@ function compareTransferForeign(home){
 
 async function main(){
   try {
-    const isErcToErcMode = await existsErc677Token(web3Home, HOME_ERC_ABI, HOME_BRIDGE_ADDRESS)
+    const homeErcBridge = new web3Home.eth.Contract(HOME_ERC_ABI, HOME_BRIDGE_ADDRESS)
+    const bridgeModeHash = await homeErcBridge.methods.getBridgeMode().call()
+    const bridgeMode = decodeBridgeMode(bridgeModeHash)
+    const isErcToErcMode = bridgeMode === BRIDGE_MODES.ERC_TO_ERC_MODE
     logger.debug("isErcToErcMode", isErcToErcMode)
     const HOME_ABI = isErcToErcMode ? HOME_ERC_ABI : HOME_NATIVE_ABI
     const FOREIGN_ABI = isErcToErcMode ? FOREIGN_ERC_ABI : FOREIGN_NATIVE_ABI

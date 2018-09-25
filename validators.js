@@ -3,6 +3,7 @@ const logger = require('./logger')('validators');
 const Web3 = require('web3');
 const Web3Utils = require('web3-utils')
 const fetch = require('node-fetch')
+const { BRIDGE_MODES } = require('./utils/bridgeMode')
 const HOME_RPC_URL = process.env.HOME_RPC_URL;
 const FOREIGN_RPC_URL = process.env.FOREIGN_RPC_URL;
 const HOME_BRIDGE_ADDRESS = process.env.HOME_BRIDGE_ADDRESS;
@@ -42,10 +43,22 @@ async function getGasPrices(type){
   }
 }
 
-async function main(isErcToErcMode){
+async function main(bridgeMode){
   try {
-    const HOME_ABI = isErcToErcMode ? HOME_ERC_ABI : HOME_NATIVE_ABI
-    const FOREIGN_ABI = isErcToErcMode ? FOREIGN_ERC_ABI : FOREIGN_NATIVE_ABI
+    let HOME_ABI = null
+    let FOREIGN_ABI = null
+    if (bridgeMode === BRIDGE_MODES.NATIVE_TO_ERC) {
+      HOME_ABI = HOME_NATIVE_ABI
+      FOREIGN_ABI = FOREIGN_NATIVE_ABI
+    } else if (bridgeMode === BRIDGE_MODES.ERC_TO_ERC) {
+      HOME_ABI = HOME_ERC_ABI
+      FOREIGN_ABI = FOREIGN_ERC_ABI
+    } else if (bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE) {
+      HOME_ABI = HOME_ERC_TO_NATIVE_ABI
+      FOREIGN_ABI = FOREIGN_ERC_TO_NATIVE_ABI
+    } else {
+      throw new Error(`Unrecognized bridge mode: ${bridgeMode}`)
+    }
     const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS);
     const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS);
     const homeValidatorsAddress = await homeBridge.methods.validatorContract().call()

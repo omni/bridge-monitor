@@ -3,12 +3,15 @@ const logger = require('./logger')('getBalances');
 const Web3 = require('web3');
 const Web3Utils = require('web3-utils')
 const BN = require('bignumber.js')
+const { BRIDGE_MODES } = require('./utils/bridgeMode')
 
-const HOME_RPC_URL = process.env.HOME_RPC_URL;
-const FOREIGN_RPC_URL = process.env.FOREIGN_RPC_URL;
-const HOME_BRIDGE_ADDRESS = process.env.HOME_BRIDGE_ADDRESS;
-const FOREIGN_BRIDGE_ADDRESS = process.env.FOREIGN_BRIDGE_ADDRESS;
-const POA20_ADDRESS = process.env.POA20_ADDRESS;
+const {
+  HOME_RPC_URL,
+  FOREIGN_RPC_URL,
+  HOME_BRIDGE_ADDRESS,
+  FOREIGN_BRIDGE_ADDRESS,
+  POA20_ADDRESS
+} = process.env
 
 const homeProvider = new Web3.providers.HttpProvider(HOME_RPC_URL);
 const web3Home = new Web3(homeProvider);
@@ -20,9 +23,9 @@ const ERC20_ABI = require('./abis/ERC20.abi');
 const ERC677_ABI = require('./abis/ERC677.abi');
 const HOME_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
 
-async function main(isErcToErcMode){
+async function main(bridgeMode){
   try {
-    if (isErcToErcMode) {
+    if (bridgeMode === BRIDGE_MODES.ERC_TO_ERC) {
       const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, POA20_ADDRESS)
       logger.debug('calling erc20Contract.methods.balanceOf');
       const foreignErc20Balance = await erc20Contract.methods.balanceOf(FOREIGN_BRIDGE_ADDRESS).call()
@@ -46,7 +49,7 @@ async function main(isErcToErcMode){
         balanceDiff: Number(Web3Utils.fromWei(diff)),
         lastChecked: Math.floor(Date.now() / 1000)
       }
-    } else {
+    } else if (bridgeMode === BRIDGE_MODES.NATIVE_TO_ERC) {
       logger.debug('calling web3Home.eth.getBalance');
       const homeBalance = await web3Home.eth.getBalance(HOME_BRIDGE_ADDRESS)
       const tokenContract = new web3Foreign.eth.Contract(ERC20_ABI, POA20_ADDRESS);
@@ -66,6 +69,30 @@ async function main(isErcToErcMode){
         balanceDiff: Number(Web3Utils.fromWei(diff)),
         lastChecked: Math.floor(Date.now() / 1000)
       }
+    } else if (bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE) {
+      const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, POA20_ADDRESS)
+      logger.debug('calling erc20Contract.methods.balanceOf');
+      const foreignErc20Balance = await erc20Contract.methods.balanceOf(FOREIGN_BRIDGE_ADDRESS).call()
+      logger.debug('calling web3Home.eth.getBalance');
+      const homeBalance = await web3Home.eth.getBalance(HOME_BRIDGE_ADDRESS)
+
+      const homeBalanceBN = new BN(homeBalance)
+      const foreignBalanceBN = new BN(foreignErc20Balance)
+
+      const diff = foreignBalanceBN.minus(homeBalanceBN).toString(10)
+      logger.debug("Done");
+      return {
+        home: {
+          balance: Web3Utils.fromWei(homeBalance),
+        },
+        foreign: {
+          erc20Balance: Web3Utils.fromWei(foreignErc20Balance)
+        },
+        balanceDiff: Number(Web3Utils.fromWei(diff)),
+        lastChecked: Math.floor(Date.now() / 1000)
+      }
+    } else {
+      throw new Error(`Unrecognized bridge mode: '${bridgeMode}'`)
     }
   } catch(e) {
     logger.error(e);

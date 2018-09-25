@@ -1,6 +1,7 @@
 require('dotenv').config();
 const logger = require('./logger')('getShortEventStats.js');
 const Web3 = require('web3');
+const { BRIDGE_MODES } = require('./utils/bridgeMode')
 const HOME_RPC_URL = process.env.HOME_RPC_URL;
 const FOREIGN_RPC_URL = process.env.FOREIGN_RPC_URL;
 const HOME_BRIDGE_ADDRESS = process.env.HOME_BRIDGE_ADDRESS;
@@ -19,13 +20,27 @@ const HOME_NATIVE_ABI = require('./abis/HomeBridgeNativeToErc.abi')
 const FOREIGN_NATIVE_ABI = require('./abis/ForeignBridgeNativeToErc.abi')
 const HOME_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
 const FOREIGN_ERC_ABI = require('./abis/ForeignBridgeErcToErc.abi')
+const HOME_ERC_TO_NATIVE_ABI = require('./abis/HomeBridgeErcToNative.abi')
+const FOREIGN_ERC_TO_NATIVE_ABI = require('./abis/ForeignBridgeErcToNative.abi')
 const ERC20_ABI = require('./abis/ERC20.abi')
 const BRIDGE_VALIDATORS_ABI = require('./abis/BridgeValidators.abi');
 
-async function main(isErcToErcMode){
+async function main(bridgeMode){
   try {
-    const HOME_ABI = isErcToErcMode ? HOME_ERC_ABI : HOME_NATIVE_ABI
-    const FOREIGN_ABI = isErcToErcMode ? FOREIGN_ERC_ABI : FOREIGN_NATIVE_ABI
+    let HOME_ABI = null
+    let FOREIGN_ABI = null
+    if (bridgeMode === BRIDGE_MODES.NATIVE_TO_ERC) {
+      HOME_ABI = HOME_NATIVE_ABI
+      FOREIGN_ABI = FOREIGN_NATIVE_ABI
+    } else if (bridgeMode === BRIDGE_MODES.ERC_TO_ERC) {
+      HOME_ABI = HOME_ERC_ABI
+      FOREIGN_ABI = FOREIGN_ERC_ABI
+    } else if (bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE) {
+      HOME_ABI = HOME_ERC_TO_NATIVE_ABI
+      FOREIGN_ABI = FOREIGN_ERC_TO_NATIVE_ABI
+    } else {
+      throw new Error(`Unrecognized bridge mode: ${bridgeMode}`)
+    }
     const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS);
     const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS);
     const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, POA20_ADDRESS)
@@ -40,15 +55,21 @@ async function main(isErcToErcMode){
     logger.debug("calling foreignValidators.methods.requiredSignatures().call()");
     const reqSigForeign = await foreignValidators.methods.requiredSignatures().call()
     logger.debug("calling homeBridge.getPastEvents('UserRequestForSignature')");
-    let homeDeposits = await homeBridge.getPastEvents('UserRequestForSignature', {fromBlock: HOME_DEPLOYMENT_BLOCK});
+    const homeDeposits = await homeBridge.getPastEvents('UserRequestForSignature', {fromBlock: HOME_DEPLOYMENT_BLOCK});
     logger.debug("calling foreignBridge.getPastEvents('RelayedMessage')");
-    let foreignDeposits = await foreignBridge.getPastEvents('RelayedMessage', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
+    const foreignDeposits = await foreignBridge.getPastEvents('RelayedMessage', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
     logger.debug("calling homeBridge.getPastEvents('AffirmationCompleted')");
-    let homeWithdrawals = await homeBridge.getPastEvents('AffirmationCompleted', {fromBlock: HOME_DEPLOYMENT_BLOCK});
+    const homeWithdrawals = await homeBridge.getPastEvents('AffirmationCompleted', {fromBlock: HOME_DEPLOYMENT_BLOCK});
     logger.debug("calling foreignBridge.getPastEvents('UserRequestForAffirmation')");
-    let foreignWithdrawals = isErcToErcMode
-      ? await erc20Contract.getPastEvents('Transfer', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK, filter: { to: FOREIGN_BRIDGE_ADDRESS }})
-      : await foreignBridge.getPastEvents('UserRequestForAffirmation', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK})
+    const foreignWithdrawals =
+      bridgeMode === BRIDGE_MODES.ERC_TO_ERC || bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE
+        ? await erc20Contract.getPastEvents('Transfer', {
+            fromBlock: FOREIGN_DEPLOYMENT_BLOCK,
+            filter: { to: FOREIGN_BRIDGE_ADDRESS }
+          })
+        : await foreignBridge.getPastEvents('UserRequestForAffirmation', {
+            fromBlock: FOREIGN_DEPLOYMENT_BLOCK
+          })
     logger.debug("Done");
     return {
       depositsDiff: homeDeposits.length - foreignDeposits.length,
