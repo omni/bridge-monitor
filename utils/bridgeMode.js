@@ -17,7 +17,6 @@ function decodeBridgeMode(bridgeModeHash) {
   }
 }
 
-
 module.exports = {
   decodeBridgeMode,
   BRIDGE_MODES
