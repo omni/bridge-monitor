@@ -8,7 +8,7 @@ const {
   FOREIGN_RPC_URL,
   HOME_BRIDGE_ADDRESS,
   FOREIGN_BRIDGE_ADDRESS,
-  POA20_ADDRESS
+  ERC20_ADDRESS
 } = process.env
 const HOME_DEPLOYMENT_BLOCK = Number(process.env.HOME_DEPLOYMENT_BLOCK) || 0
 const FOREIGN_DEPLOYMENT_BLOCK = Number(process.env.FOREIGN_DEPLOYMENT_BLOCK) || 0
@@ -90,7 +90,7 @@ async function main() {
     const FOREIGN_ABI = isErcToErcMode ? FOREIGN_ERC_TO_ERC_ABI : FOREIGN_NATIVE_TO_ERC_ABI
     const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS)
     const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS)
-    const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, POA20_ADDRESS)
+    const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, ERC20_ADDRESS)
     logger.debug("calling homeBridge.getPastEvents('UserRequestForSignature')")
     const homeDeposits = await homeBridge.getPastEvents('UserRequestForSignature', {
       fromBlock: HOME_DEPLOYMENT_BLOCK

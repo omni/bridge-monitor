@@ -2,7 +2,7 @@ require('dotenv').config()
 const Web3 = require('web3')
 const logger = require('./logger')('stuckTransfers.js')
 
-const { FOREIGN_RPC_URL, FOREIGN_BRIDGE_ADDRESS, POA20_ADDRESS } = process.env
+const { FOREIGN_RPC_URL, FOREIGN_BRIDGE_ADDRESS, ERC20_ADDRESS } = process.env
 const FOREIGN_DEPLOYMENT_BLOCK = Number(process.env.FOREIGN_DEPLOYMENT_BLOCK) || 0
 
 const foreignProvider = new Web3.providers.HttpProvider(FOREIGN_RPC_URL)
@@ -75,8 +75,8 @@ function compareTransfers(transfersNormal) {
 
 async function main() {
   try {
-    const tokenContract = new web3Foreign.eth.Contract(ABITransferWithoutData, POA20_ADDRESS)
-    const tokenContractWithData = new web3Foreign.eth.Contract(ABIWithData, POA20_ADDRESS)
+    const tokenContract = new web3Foreign.eth.Contract(ABITransferWithoutData, ERC20_ADDRESS)
+    const tokenContractWithData = new web3Foreign.eth.Contract(ABIWithData, ERC20_ADDRESS)
     logger.debug('calling tokenContract.getPastEvents Transfer')
     const transfersNormal = await tokenContract.getPastEvents('Transfer', {
       filter: {

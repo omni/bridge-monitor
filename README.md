@@ -5,7 +5,7 @@ https://bridge-monitoring.poa.net/
 This tools allows you to spin up node.js server to monitor for 2 contracts on
 Home and Foreign Eth networks to check for balance difference.
 On Home network it checks for `HOME_BRIDGE_ADDRESS` balance
-On Foreign network it checks for `POA20_ADDRESS` total supply.
+On Foreign network it checks for `ERC20_ADDRESS` total supply.
 
 Example of an API 
 
@@ -123,7 +123,7 @@ HOME_RPC_URL=https://sokol.poa.network
 FOREIGN_RPC_URL=https://kovan.infura.io/mew
 HOME_BRIDGE_ADDRESS=0xABb4C1399DcC28FBa3Beb76CAE2b50Be3e087353
 FOREIGN_BRIDGE_ADDRESS=0xE405F6872cE38a7a4Ff63DcF946236D458c2ca3a
-POA20_ADDRESS=0x6F794fb14d01f7551C1fe5614FDDf5895A2e82d3
+ERC20_ADDRESS=0x6F794fb14d01f7551C1fe5614FDDf5895A2e82d3
 GAS_PRICE_SPEED_TYPE=standard
 GAS_LIMIT=300000
 GAS_PRICE_FALLBACK=21
