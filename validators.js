@@ -2,7 +2,7 @@ require('dotenv').config()
 const Web3 = require('web3')
 const fetch = require('node-fetch')
 const logger = require('./logger')('validators')
-const { BRIDGE_MODES } = require('./utils/bridgeMode')
+const { getBridgeABIs, BRIDGE_MODES } = require('./utils/bridgeMode')
 
 const {
   HOME_RPC_URL,
@@ -24,12 +24,6 @@ const web3Home = new Web3(homeProvider)
 const foreignProvider = new Web3.providers.HttpProvider(FOREIGN_RPC_URL)
 const web3Foreign = new Web3(foreignProvider)
 
-const HOME_NATIVE_TO_ERC_ABI = require('./abis/HomeBridgeNativeToErc.abi')
-const FOREIGN_NATIVE_TO_ERC_ABI = require('./abis/ForeignBridgeNativeToErc.abi')
-const HOME_ERC_TO_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
-const FOREIGN_ERC_TO_ERC_ABI = require('./abis/ForeignBridgeErcToErc.abi')
-const HOME_ERC_TO_NATIVE_ABI = require('./abis/HomeBridgeErcToNative.abi')
-const FOREIGN_ERC_TO_NATIVE_ABI = require('./abis/ForeignBridgeErcToNative.abi')
 const BRIDGE_VALIDATORS_ABI = require('./abis/BridgeValidators.abi')
 
 const asyncForEach = async (array, callback) => {
@@ -52,20 +46,7 @@ async function getGasPrices(type) {
 
 async function main(bridgeMode) {
   try {
-    let HOME_ABI = null
-    let FOREIGN_ABI = null
-    if (bridgeMode === BRIDGE_MODES.NATIVE_TO_ERC) {
-      HOME_ABI = HOME_NATIVE_TO_ERC_ABI
-      FOREIGN_ABI = FOREIGN_NATIVE_TO_ERC_ABI
-    } else if (bridgeMode === BRIDGE_MODES.ERC_TO_ERC) {
-      HOME_ABI = HOME_ERC_TO_ERC_ABI
-      FOREIGN_ABI = FOREIGN_ERC_TO_ERC_ABI
-    } else if (bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE) {
-      HOME_ABI = HOME_ERC_TO_NATIVE_ABI
-      FOREIGN_ABI = FOREIGN_ERC_TO_NATIVE_ABI
-    } else {
-      throw new Error(`Unrecognized bridge mode: ${bridgeMode}`)
-    }
+    const { HOME_ABI, FOREIGN_ABI } = getBridgeABIs(bridgeMode)
     const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS)
     const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS)
     const homeValidatorsAddress = await homeBridge.methods.validatorContract().call()
