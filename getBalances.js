@@ -23,6 +23,8 @@ const web3Foreign = new Web3(foreignProvider)
 const ERC20_ABI = require('./abis/ERC20.abi')
 const ERC677_ABI = require('./abis/ERC677.abi')
 const HOME_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
+const HOME_ERC_TO_NATIVE_ABI = require('./abis/HomeBridgeErcToNative.abi')
+const BLOCK_REWARD_ABI = require('./abis/IBlockReward.abi')
 
 async function main(bridgeMode) {
   try {
@@ -78,20 +80,25 @@ async function main(bridgeMode) {
       const foreignErc20Balance = await erc20Contract.methods
         .balanceOf(FOREIGN_BRIDGE_ADDRESS)
         .call()
-      logger.debug('calling web3Home.eth.getBalance')
-      const homeBalance = await web3Home.eth.getBalance(HOME_BRIDGE_ADDRESS)
 
-      const homeBalanceBN = new BN(homeBalance)
-      const foreignBalanceBN = new BN(foreignErc20Balance)
+      const homeBridge = new web3Home.eth.Contract(HOME_ERC_TO_NATIVE_ABI, HOME_BRIDGE_ADDRESS)
+      logger.debug('calling homeBridge.methods.blockRewardContract')
+      const blockRewardAddress = await homeBridge.methods.blockRewardContract().call()
+      const blockRewardContract = new web3Home.eth.Contract(BLOCK_REWARD_ABI, blockRewardAddress)
+      logger.debug('calling blockReward.methods.totalMintedCoins')
+      const mintedCoins = await blockRewardContract.methods.totalMintedCoins().call()
 
-      const diff = foreignBalanceBN.minus(homeBalanceBN).toString(10)
+      const mintedCoinsBN = new BN(mintedCoins)
+      const foreignErc20BalanceBN = new BN(foreignErc20Balance)
+
+      const diff = foreignErc20BalanceBN.minus(mintedCoinsBN).toString(10)
       logger.debug('Done')
       return {
         home: {
-          balance: Web3Utils.fromWei(homeBalance)
+          mintedCoins: Web3Utils.fromWei(mintedCoins)
         },
         foreign: {
-          erc20Balance: Web3Utils.fromWei(foreignErc20Balance)
+          totalSupply: Web3Utils.fromWei(foreignErc20Balance)
         },
         balanceDiff: Number(Web3Utils.fromWei(diff)),
         lastChecked: Math.floor(Date.now() / 1000)
