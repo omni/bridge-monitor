@@ -20,7 +20,7 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "totalMintedCoins",
+    "name": "mintedTotally",
     "outputs": [
       {
         "name": "",

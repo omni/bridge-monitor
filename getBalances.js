@@ -85,8 +85,8 @@ async function main(bridgeMode) {
       logger.debug('calling homeBridge.methods.blockRewardContract')
       const blockRewardAddress = await homeBridge.methods.blockRewardContract().call()
       const blockRewardContract = new web3Home.eth.Contract(BLOCK_REWARD_ABI, blockRewardAddress)
-      logger.debug('calling blockReward.methods.totalMintedCoins')
-      const mintedCoins = await blockRewardContract.methods.totalMintedCoins().call()
+      logger.debug('calling blockReward.methods.mintedTotally')
+      const mintedCoins = await blockRewardContract.methods.mintedTotally().call()
 
       const mintedCoinsBN = new BN(mintedCoins)
       const foreignErc20BalanceBN = new BN(foreignErc20Balance)
