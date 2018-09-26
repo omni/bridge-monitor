@@ -87,18 +87,22 @@ async function main(bridgeMode) {
       const blockRewardContract = new web3Home.eth.Contract(BLOCK_REWARD_ABI, blockRewardAddress)
       logger.debug('calling blockReward.methods.mintedTotally')
       const mintedCoins = await blockRewardContract.methods.mintedTotally().call()
+      logger.debug('calling homeBridge.methods.totalBurntCoins')
+      const burntCoins = await homeBridge.methods.totalBurntCoins().call()
 
       const mintedCoinsBN = new BN(mintedCoins)
+      const burntCoinsBN = new BN(burntCoins)
+      const totalSupplyBN = mintedCoinsBN.minus(burntCoinsBN)
       const foreignErc20BalanceBN = new BN(foreignErc20Balance)
 
-      const diff = foreignErc20BalanceBN.minus(mintedCoinsBN).toString(10)
+      const diff = foreignErc20BalanceBN.minus(totalSupplyBN).toString(10)
       logger.debug('Done')
       return {
         home: {
-          mintedCoins: Web3Utils.fromWei(mintedCoins)
+          totalSupply: Web3Utils.fromWei(totalSupplyBN.toString())
         },
         foreign: {
-          totalSupply: Web3Utils.fromWei(foreignErc20Balance)
+          erc20Balance: Web3Utils.fromWei(foreignErc20Balance)
         },
         balanceDiff: Number(Web3Utils.fromWei(diff)),
         lastChecked: Math.floor(Date.now() / 1000)
