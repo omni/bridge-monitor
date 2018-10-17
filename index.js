@@ -73,6 +73,8 @@ app.get('/eventsStats', async (req, res, next) => {
 })
 
 // responses/stuckTransfers.json
+// Only applicable for bridge-rust-v1-native-to-erc
+/*
 app.get('/stuckTransfers', async (req, res, next) => {
   try {
     const results = await readFile('./responses/stuckTransfers.json')
@@ -83,6 +85,7 @@ app.get('/stuckTransfers', async (req, res, next) => {
     next(e)
   }
 })
+*/
 
 const port = process.env.PORT || 3000
 app.set('port', port)
