@@ -72,6 +72,16 @@ app.get('/eventsStats', async (req, res, next) => {
   }
 })
 
+app.get('/alerts', async (req, res, next) => {
+  try {
+    const results = await readFile('./responses/alerts.json')
+    results.ok = results.executeAffirmations.length === 0 && results.executeSignatures.length === 0
+    res.json(results)
+  } catch (e) {
+    next(e)
+  }
+})
+
 // responses/stuckTransfers.json
 // Only applicable for bridge-rust-v1-native-to-erc
 /*
