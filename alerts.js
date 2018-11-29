@@ -21,8 +21,7 @@ async function main() {
 
     logger.debug("building misbehavior blocks")
     const getBlockNumber = web3 => web3.eth.getBlockNumber()
-    const toBN = n => new BN(n)
-    const [ foreignBlockNumber, homeBlockNumber ] = (await Promise.all([web3Foreign, web3Home].map(getBlockNumber))).map(toBN)
+    const [ foreignBlockNumber, homeBlockNumber ] = (await Promise.all([web3Foreign, web3Home].map(getBlockNumber))).map(Web3.utils.toBN)
 
     const xSignaturesMisbehavior = buildRangesObject(xSignatures.map(findMisbehaviorRange(foreignBlockNumber)).reduce(mergeRanges))
     const xAffirmationsMisbehavior = buildRangesObject(xAffirmations.map(findMisbehaviorRange(homeBlockNumber)).reduce(mergeRanges))
@@ -61,14 +60,14 @@ async function main() {
 
 /**
  * Finds the location for the blockNumber in a specific range starting from currentBlockNumber
- * @param {BigNumber} currentBlockNumber
+ * @param {BN} currentBlockNumber
  * @returns {function({blockNumber?: *}): boolean[]}
  */
 const findMisbehaviorRange = currentBlockNumber => ({ blockNumber }) => {
-  const minus60 = currentBlockNumber.minus(60)
-  const minus180 = currentBlockNumber.minus(180)
-  const minus720 = currentBlockNumber.minus(720)
-  const minus17280 = currentBlockNumber.minus(17280)
+  const minus60 = currentBlockNumber.sub(Web3.utils.toBN(60))
+  const minus180 = currentBlockNumber.sub(Web3.utils.toBN(180))
+  const minus720 = currentBlockNumber.sub(Web3.utils.toBN(720))
+  const minus17280 = currentBlockNumber.sub(Web3.utils.toBN(17280))
 
   return [
     minus60.lte(blockNumber),
