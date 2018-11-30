@@ -23,8 +23,9 @@ async function main() {
     const getBlockNumber = web3 => web3.eth.getBlockNumber()
     const [ foreignBlockNumber, homeBlockNumber ] = (await Promise.all([web3Foreign, web3Home].map(getBlockNumber))).map(Web3.utils.toBN)
 
-    const xSignaturesMisbehavior = buildRangesObject(xSignatures.map(findMisbehaviorRange(foreignBlockNumber)).reduce(mergeRanges, []))
-    const xAffirmationsMisbehavior = buildRangesObject(xAffirmations.map(findMisbehaviorRange(homeBlockNumber)).reduce(mergeRanges, []))
+    const baseRange = [false, false, false, false, false]
+    const xSignaturesMisbehavior = buildRangesObject(xSignatures.map(findMisbehaviorRange(foreignBlockNumber)).reduce(mergeRanges, baseRange))
+    const xAffirmationsMisbehavior = buildRangesObject(xAffirmations.map(findMisbehaviorRange(homeBlockNumber)).reduce(mergeRanges, baseRange))
 
     logger.debug("extracting most recent transactionHash")
     const { transactionHash: xSignaturesMostRecentTxHash = '' } = xSignatures.sort(sortEvents).reverse()[0] || {}
