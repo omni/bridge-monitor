@@ -7,7 +7,7 @@ async function checkWorker3() {
   try {
     logger.debug('calling stuckTransfers()')
     const transfers = await stuckTransfers()
-    console.log(transfers)
+    // console.log(transfers)
     if (!transfers) throw new Error('transfers is empty: ' + JSON.stringify(transfers))
     fs.writeFileSync(
       path.join(__dirname, '/responses/stuckTransfers.json'),

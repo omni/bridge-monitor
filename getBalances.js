@@ -95,11 +95,11 @@ async function main(bridgeMode) {
       const totalSupplyBN = mintedCoinsBN.minus(burntCoinsBN)
       const foreignErc20BalanceBN = new BN(foreignErc20Balance)
 
-      const diff = foreignErc20BalanceBN.minus(totalSupplyBN).toString(10)
+      const diff = foreignErc20BalanceBN.minus(totalSupplyBN).toFixed()
       logger.debug('Done')
       return {
         home: {
-          totalSupply: Web3Utils.fromWei(totalSupplyBN.toString())
+          totalSupply: Web3Utils.fromWei(totalSupplyBN.toFixed())
         },
         foreign: {
           erc20Balance: Web3Utils.fromWei(foreignErc20Balance)
