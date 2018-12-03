@@ -103,7 +103,7 @@ const buildRangesObject = range => ({
   last60to180blocks: range[1],
   last180to720blocks: range[2],
   last720to17280blocks: range[3],
-  last17280blocks: range[4]
+  before17280blocks: range[4]
 })
 
 /**
