@@ -75,6 +75,7 @@ function compareTransfers(transfersNormal) {
 
 async function main() {
   try {
+    // TODO: ERC20_ADDRESS is no longer an env constant. It has to be extracted from the ForeignBridge Contract.
     const tokenContract = new web3Foreign.eth.Contract(ABITransferWithoutData, ERC20_ADDRESS)
     const tokenContractWithData = new web3Foreign.eth.Contract(ABIWithData, ERC20_ADDRESS)
     logger.debug('calling tokenContract.getPastEvents Transfer')
