@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const logger = require('./logger')('checkWorker2')
 const eventsStats = require('./eventsStats')
+const alerts = require('./alerts')
 
 async function checkWorker2() {
   try {
@@ -12,7 +13,14 @@ async function checkWorker2() {
       path.join(__dirname, '/responses/eventsStats.json'),
       JSON.stringify(evStats, null, 4)
     )
-    logger.debug('Done')
+    logger.debug('calling alerts()')
+    const _alerts = await alerts()
+    if (!_alerts) throw new Error('alerts is empty: ' + JSON.stringify(_alerts))
+    fs.writeFileSync(
+      path.join(__dirname, '/responses/alerts.json'),
+      JSON.stringify(_alerts, null, 4)
+    )
+    logger.debug('Done x2')
     return evStats
   } catch (e) {
     logger.error('checkWorker2.js', e)
