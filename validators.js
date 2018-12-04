@@ -2,7 +2,7 @@ require('dotenv').config()
 const Web3 = require('web3')
 const fetch = require('node-fetch')
 const logger = require('./logger')('validators')
-const { getBridgeABIs, BRIDGE_MODES } = require('./utils/bridgeMode')
+const { getBridgeABIs } = require('./utils/bridgeMode')
 
 const {
   HOME_RPC_URL,

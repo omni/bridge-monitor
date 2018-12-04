@@ -6,13 +6,7 @@ const { BRIDGE_MODES } = require('./utils/bridgeMode')
 
 const Web3Utils = Web3.utils
 
-const {
-  HOME_RPC_URL,
-  FOREIGN_RPC_URL,
-  HOME_BRIDGE_ADDRESS,
-  FOREIGN_BRIDGE_ADDRESS,
-  ERC20_ADDRESS
-} = process.env
+const { HOME_RPC_URL, FOREIGN_RPC_URL, HOME_BRIDGE_ADDRESS, FOREIGN_BRIDGE_ADDRESS } = process.env
 
 const homeProvider = new Web3.providers.HttpProvider(HOME_RPC_URL)
 const web3Home = new Web3(homeProvider)
@@ -25,11 +19,16 @@ const ERC677_ABI = require('./abis/ERC677.abi')
 const HOME_ERC_TO_ERC_ABI = require('./abis/HomeBridgeErcToErc.abi')
 const HOME_ERC_TO_NATIVE_ABI = require('./abis/HomeBridgeErcToNative.abi')
 const BLOCK_REWARD_ABI = require('./abis/IBlockReward.abi')
+const FOREIGN_ERC_TO_ERC_ABI = require('./abis/ForeignBridgeErcToErc.abi')
+const FOREIGN_ERC_TO_NATIVE_ABI = require('./abis/ForeignBridgeErcToNative.abi')
+const FOREIGN_NATIVE_TO_ERC_ABI = require('./abis/ForeignBridgeNativeToErc.abi')
 
 async function main(bridgeMode) {
   try {
     if (bridgeMode === BRIDGE_MODES.ERC_TO_ERC) {
-      const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, ERC20_ADDRESS)
+      const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_BRIDGE_ADDRESS, FOREIGN_ERC_TO_ERC_ABI)
+      const erc20Address = await foreignBridge.methods.erc20token().call()
+      const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, erc20Address)
       logger.debug('calling erc20Contract.methods.balanceOf')
       const foreignErc20Balance = await erc20Contract.methods
         .balanceOf(FOREIGN_BRIDGE_ADDRESS)
@@ -56,8 +55,10 @@ async function main(bridgeMode) {
       }
     } else if (bridgeMode === BRIDGE_MODES.NATIVE_TO_ERC) {
       logger.debug('calling web3Home.eth.getBalance')
+      const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_NATIVE_TO_ERC_ABI, FOREIGN_BRIDGE_ADDRESS)
+      const erc20Address = await foreignBridge.methods.erc677token().call()
       const homeBalance = await web3Home.eth.getBalance(HOME_BRIDGE_ADDRESS)
-      const tokenContract = new web3Foreign.eth.Contract(ERC20_ABI, ERC20_ADDRESS)
+      const tokenContract = new web3Foreign.eth.Contract(ERC20_ABI, erc20Address)
       logger.debug('calling tokenContract.methods.totalSupply()')
       const totalSupply = await tokenContract.methods.totalSupply().call()
       const homeBalanceBN = new BN(homeBalance)
@@ -75,7 +76,9 @@ async function main(bridgeMode) {
         lastChecked: Math.floor(Date.now() / 1000)
       }
     } else if (bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE) {
-      const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, ERC20_ADDRESS)
+      const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ERC_TO_NATIVE_ABI, FOREIGN_BRIDGE_ADDRESS)
+      const erc20Address = await foreignBridge.methods.erc20token().call()
+      const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, erc20Address)
       logger.debug('calling erc20Contract.methods.balanceOf')
       const foreignErc20Balance = await erc20Contract.methods
         .balanceOf(FOREIGN_BRIDGE_ADDRESS)
@@ -95,11 +98,11 @@ async function main(bridgeMode) {
       const totalSupplyBN = mintedCoinsBN.minus(burntCoinsBN)
       const foreignErc20BalanceBN = new BN(foreignErc20Balance)
 
-      const diff = foreignErc20BalanceBN.minus(totalSupplyBN).toString(10)
+      const diff = foreignErc20BalanceBN.minus(totalSupplyBN).toFixed()
       logger.debug('Done')
       return {
         home: {
-          totalSupply: Web3Utils.fromWei(totalSupplyBN.toString())
+          totalSupply: Web3Utils.fromWei(totalSupplyBN.toFixed())
         },
         foreign: {
           erc20Balance: Web3Utils.fromWei(foreignErc20Balance)
