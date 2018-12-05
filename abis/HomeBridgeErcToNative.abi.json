@@ -640,6 +640,10 @@
       {
         "name": "_requiredBlockConfirmations",
         "type": "uint256"
+      },
+      {
+        "name": "_blockReward",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -665,6 +669,48 @@
     ],
     "payable": false,
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "blockRewardContract",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "totalBurntCoins",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_blockReward",
+        "type": "address"
+      }
+    ],
+    "name": "setBlockRewardContract",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
