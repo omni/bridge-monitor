@@ -17,20 +17,17 @@ Example of an API
     "home": {
         "balance": "3710077.6896438415780044",
         "deposits": 481,
-        "withdrawals": 221,
-        "requiredSignatures": 2
+        "withdrawals": 221
     },
     "foreign": {
         "totalSupply": "3710077.6896438415780044",
         "deposits": 481,
-        "withdrawals": 221,
-        "requiredSignatures": 2
+        "withdrawals": 221
     },
     "balanceDiff": 0,
     "lastChecked": 1529511982,
     "depositsDiff": 0,
-    "withdrawalDiff": 0,
-    "requiredSignaturesMatch": true
+    "withdrawalDiff": 0
 }
 ```
 
@@ -54,7 +51,8 @@ Example of an API
                 "leftTx": 66650466250000,
                 "gasPrice": 1
             }
-        }
+        },
+        "requiredSignatures": 2
     },
     "foreign": {
         "validators": {
@@ -73,8 +71,11 @@ Example of an API
                 "leftTx": 28863,
                 "gasPrice": 2.2
             }
-        }
+        },
+        "requiredSignatures": 2
     },
+    "requiredSignaturesMatch": true,
+    "validatorsMatch": true,
     "lastChecked": 1529512164
 }
 ```

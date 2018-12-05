@@ -105,6 +105,7 @@ async function main(bridgeMode) {
     const gasPriceInGwei = await getGasPrices(GAS_PRICE_SPEED_TYPE)
     const gasPrice = new Web3Utils.BN(Web3Utils.toWei(gasPriceInGwei.toString(10), 'gwei'))
     const txCost = gasPrice.mul(new Web3Utils.BN(GAS_LIMIT))
+    let validatorsMatch = true
     logger.debug('calling asyncForEach foreignValidators foreignVBalances')
     await asyncForEach(foreignValidators, async v => {
       const balance = await web3Foreign.eth.getBalance(v)
@@ -113,6 +114,10 @@ async function main(bridgeMode) {
         balance: Web3Utils.fromWei(balance),
         leftTx: Number(leftTx),
         gasPrice: gasPriceInGwei
+      }
+      if(!homeValidators.includes(v)) {
+        validatorsMatch = false
+        foreignVBalances[v].onlyOnForeign = true
       }
     })
     logger.debug('calling asyncForEach homeValidators homeVBalances')
@@ -126,19 +131,31 @@ async function main(bridgeMode) {
         leftTx: Number(leftTx),
         gasPrice: Number(gasPrice.toString(10))
       }
+      if(!foreignValidators.includes(v)) {
+        validatorsMatch = false
+        homeVBalances[v].onlyOnHome = true
+      }
     })
+    logger.debug('calling homeBridgeValidators.methods.requiredSignatures().call()')
+    const reqSigHome = await homeBridgeValidators.methods.requiredSignatures().call()
+    logger.debug('calling foreignBridgeValidators.methods.requiredSignatures().call()')
+    const reqSigForeign = await foreignBridgeValidators.methods.requiredSignatures().call()
     logger.debug('Done')
     return {
       home: {
         validators: {
           ...homeVBalances
-        }
+        },
+        requiredSignatures: Number(reqSigHome)
       },
       foreign: {
         validators: {
           ...foreignVBalances
-        }
+        },
+        requiredSignatures: Number(reqSigForeign)
       },
+      requiredSignaturesMatch: reqSigHome === reqSigForeign,
+      validatorsMatch,
       lastChecked: Math.floor(Date.now() / 1000)
     }
   } catch (e) {
