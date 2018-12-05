@@ -136,18 +136,25 @@ async function main(bridgeMode) {
         homeVBalances[v].onlyOnHome = true
       }
     })
+    logger.debug('calling homeBridgeValidators.methods.requiredSignatures().call()')
+    const reqSigHome = await homeBridgeValidators.methods.requiredSignatures().call()
+    logger.debug('calling foreignBridgeValidators.methods.requiredSignatures().call()')
+    const reqSigForeign = await foreignBridgeValidators.methods.requiredSignatures().call()
     logger.debug('Done')
     return {
       home: {
         validators: {
           ...homeVBalances
-        }
+        },
+        requiredSignatures: Number(reqSigHome)
       },
       foreign: {
         validators: {
           ...foreignVBalances
-        }
+        },
+        requiredSignatures: Number(reqSigForeign)
       },
+      requiredSignaturesMatch: reqSigHome === reqSigForeign,
       validatorsMatch,
       lastChecked: Math.floor(Date.now() / 1000)
     }
