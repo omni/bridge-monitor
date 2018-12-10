@@ -4,8 +4,8 @@ https://bridge-monitoring.poa.net/
 
 This tools allows you to spin up node.js server to monitor for 2 contracts on
 Home and Foreign Eth networks to check for balance difference.
-On Home network it checks for `HOME_BRIDGE_ADDRESS` balance
-On Foreign network it checks for `POA20_ADDRESS` total supply.
+On Home network it checks for `HOME_BRIDGE_ADDRESS` balance.
+On Foreign network it checks for the `ERC20 token` total supply for the `FOREIGN_BRIDGE_ADDRESS`.
 
 Example of an API 
 
@@ -17,20 +17,17 @@ Example of an API
     "home": {
         "balance": "3710077.6896438415780044",
         "deposits": 481,
-        "withdrawals": 221,
-        "requiredSignatures": 2
+        "withdrawals": 221
     },
     "foreign": {
         "totalSupply": "3710077.6896438415780044",
         "deposits": 481,
-        "withdrawals": 221,
-        "requiredSignatures": 2
+        "withdrawals": 221
     },
     "balanceDiff": 0,
     "lastChecked": 1529511982,
     "depositsDiff": 0,
-    "withdrawalDiff": 0,
-    "requiredSignaturesMatch": true
+    "withdrawalDiff": 0
 }
 ```
 
@@ -54,7 +51,8 @@ Example of an API
                 "leftTx": 66650466250000,
                 "gasPrice": 1
             }
-        }
+        },
+        "requiredSignatures": 2
     },
     "foreign": {
         "validators": {
@@ -73,8 +71,11 @@ Example of an API
                 "leftTx": 28863,
                 "gasPrice": 2.2
             }
-        }
+        },
+        "requiredSignatures": 2
     },
+    "requiredSignaturesMatch": true,
+    "validatorsMatch": true,
     "lastChecked": 1529512164
 }
 ```
@@ -123,7 +124,6 @@ HOME_RPC_URL=https://sokol.poa.network
 FOREIGN_RPC_URL=https://kovan.infura.io/mew
 HOME_BRIDGE_ADDRESS=0xABb4C1399DcC28FBa3Beb76CAE2b50Be3e087353
 FOREIGN_BRIDGE_ADDRESS=0xE405F6872cE38a7a4Ff63DcF946236D458c2ca3a
-POA20_ADDRESS=0x6F794fb14d01f7551C1fe5614FDDf5895A2e82d3
 GAS_PRICE_SPEED_TYPE=standard
 GAS_LIMIT=300000
 GAS_PRICE_FALLBACK=21
