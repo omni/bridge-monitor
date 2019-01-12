@@ -26,7 +26,7 @@ const FOREIGN_NATIVE_TO_ERC_ABI = require('./abis/ForeignBridgeNativeToErc.abi')
 async function main(bridgeMode) {
   try {
     if (bridgeMode === BRIDGE_MODES.ERC_TO_ERC) {
-      const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_BRIDGE_ADDRESS, FOREIGN_ERC_TO_ERC_ABI)
+      const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ERC_TO_ERC_ABI,FOREIGN_BRIDGE_ADDRESS)
       const erc20Address = await foreignBridge.methods.erc20token().call()
       const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, erc20Address)
       logger.debug('calling erc20Contract.methods.balanceOf')
