@@ -14,6 +14,8 @@
     "no-plusplus": "off",
     "no-restricted-syntax": "off",
     "no-shadow": "off",
-    "prefer-template": "off"
+    "prefer-template": "off",
+    "no-use-before-define": "off",
+    "no-underscore-dangle": "off"
   }
 }
