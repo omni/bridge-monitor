@@ -15,26 +15,26 @@ const processValidatorsEvents = events => {
   return Array.from(validatorList)
 }
 
-const getValidatorEvents = async bridgeValidatorContract => {
+const getValidatorEvents = async (bridgeValidatorContract, fromBlock) => {
   try {
-    return await bridgeValidatorContract.getPastEvents('allEvents', { fromBlock: 0 })
+    return await bridgeValidatorContract.getPastEvents('allEvents', { fromBlock })
   } catch (e) {
     return []
   }
 }
 
-const getValidatorList = async (address, eth) => {
+const getValidatorList = async (address, eth, fromBlock) => {
   logger.debug('getting v1ValidatorsEvents')
   const v1Contract = new eth.Contract(BRIDGE_VALIDATORS_V1_ABI, address)
-  const v1ValidatorsEvents = await getValidatorEvents(v1Contract)
+  const v1ValidatorsEvents = await getValidatorEvents(v1Contract, fromBlock)
 
   logger.debug('getting validatorsEvents')
   const contract = new eth.Contract(BRIDGE_VALIDATORS_ABI, address)
-  const validatorsEvents = await getValidatorEvents(contract)
+  const validatorsEvents = await getValidatorEvents(contract, fromBlock)
 
   logger.debug('getting rewardableValidatorsEvents')
   const rewardableContract = new eth.Contract(REWARDABLE_BRIDGE_VALIDATORS_ABI, address)
-  const rewardableValidatorsEvents = await getValidatorEvents(rewardableContract)
+  const rewardableValidatorsEvents = await getValidatorEvents(rewardableContract, fromBlock)
 
   const eventList = [...v1ValidatorsEvents, ...validatorsEvents, ...rewardableValidatorsEvents]
 

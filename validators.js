@@ -64,10 +64,18 @@ async function main(bridgeMode) {
     )
 
     logger.debug('calling foreignBridgeValidators getValidatorList()')
-    const foreignValidators = await getValidatorList(foreignValidatorsAddress, web3Foreign.eth)
+    const foreignValidators = await getValidatorList(
+      foreignValidatorsAddress,
+      web3Foreign.eth,
+      FOREIGN_DEPLOYMENT_BLOCK
+    )
 
     logger.debug('calling homeBridgeValidators getValidatorList()')
-    const homeValidators = await getValidatorList(homeValidatorsAddress, web3Home.eth)
+    const homeValidators = await getValidatorList(
+      homeValidatorsAddress,
+      web3Home.eth,
+      HOME_DEPLOYMENT_BLOCK
+    )
 
     const homeBalances = {}
     logger.debug('calling asyncForEach homeValidators homeBalances')
