@@ -1,46 +1,70 @@
-const BRIDGE_VALIDATORS_ABI = require('../abis/BridgeValidators.abi')
+/* eslint no-param-reassign: ["error", { "props": false }] */
+
 const REWARDABLE_BRIDGE_VALIDATORS_ABI = require('../abis/RewardableValidators.abi')
-const BRIDGE_VALIDATORS_V1_ABI = require('../abis/BridgeValidatorsV1.abi')
 const logger = require('../logger')('validatorsUtils')
+
+const parseValidatorEvent = event => {
+  if (
+    event.event === undefined &&
+    event.raw &&
+    event.raw.topics &&
+    (event.raw.topics[0] === '0xe366c1c0452ed8eec96861e9e54141ebff23c9ec89fe27b996b45f5ec3884987' ||
+      event.raw.topics[0] === '0x8064a302796c89446a96d63470b5b036212da26bd2debe5bec73e0170a9a5e83')
+  ) {
+    const rawAddress = event.raw.topics.length > 1 ? event.raw.topics[1] : event.raw.data
+    const address = '0x' + rawAddress.slice(26)
+    event.event = 'ValidatorAdded'
+    event.returnValues.validator = address
+  } else if (
+    event.event === undefined &&
+    event.raw &&
+    event.raw.topics &&
+    event.raw.topics[0] === '0xe1434e25d6611e0db941968fdc97811c982ac1602e951637d206f5fdda9dd8f1'
+  ) {
+    const rawAddress = event.raw.data === '0x' ? event.raw.topics[1] : event.raw.data
+    const address = '0x' + rawAddress.slice(26)
+    event.event = 'ValidatorRemoved'
+    event.returnValues.validator = address
+  }
+}
 
 const processValidatorsEvents = events => {
   const validatorList = new Set()
   events.forEach(event => {
+    parseValidatorEvent(event)
+
     if (event.event === 'ValidatorAdded') {
       validatorList.add(event.returnValues.validator)
     } else if (event.event === 'ValidatorRemoved') {
       validatorList.delete(event.returnValues.validator)
     }
   })
+
   return Array.from(validatorList)
 }
 
-const getValidatorEvents = async (bridgeValidatorContract, fromBlock) => {
+const validatorList = async contract => {
   try {
-    return await bridgeValidatorContract.getPastEvents('allEvents', { fromBlock })
+    return await contract.methods.validatorList().call()
   } catch (e) {
     return []
   }
 }
 
 const getValidatorList = async (address, eth, fromBlock) => {
-  logger.debug('getting v1ValidatorsEvents')
-  const v1Contract = new eth.Contract(BRIDGE_VALIDATORS_V1_ABI, address)
-  const v1ValidatorsEvents = await getValidatorEvents(v1Contract, fromBlock)
+  logger.debug('getting validatorList')
+  const validatorsContract = new eth.Contract(REWARDABLE_BRIDGE_VALIDATORS_ABI, address)
+  const validators = await validatorList(validatorsContract)
+
+  if (validators.length) {
+    return validators
+  }
 
   logger.debug('getting validatorsEvents')
-  const contract = new eth.Contract(BRIDGE_VALIDATORS_ABI, address)
-  const validatorsEvents = await getValidatorEvents(contract, fromBlock)
+  const contract = new eth.Contract([], address)
+  const validatorsEvents = await contract.getPastEvents('allEvents', { fromBlock })
 
-  logger.debug('getting rewardableValidatorsEvents')
-  const rewardableContract = new eth.Contract(REWARDABLE_BRIDGE_VALIDATORS_ABI, address)
-  const rewardableValidatorsEvents = await getValidatorEvents(rewardableContract, fromBlock)
-
-  const eventList = [...v1ValidatorsEvents, ...validatorsEvents, ...rewardableValidatorsEvents]
-
-  const sortedEvents = eventList.sort((a, b) => a.blockNumber - b.blockNumber)
-
-  return processValidatorsEvents(sortedEvents)
+  return processValidatorsEvents(validatorsEvents)
 }
 
 module.exports = {
