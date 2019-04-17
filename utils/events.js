@@ -22,7 +22,8 @@ async function main() {
     const bridgeModeHash = await homeErcBridge.methods.getBridgeMode().call()
     const bridgeMode = decodeBridgeMode(bridgeModeHash)
     const { HOME_ABI, FOREIGN_ABI } = getBridgeABIs(bridgeMode)
-    const hasForeignErc = bridgeMode === BRIDGE_MODES.ERC_TO_ERC || bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE
+    const hasForeignErc =
+      bridgeMode === BRIDGE_MODES.ERC_TO_ERC || bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE
     const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS)
     const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS)
     const erc20MethodName = bridgeMode === BRIDGE_MODES.NATIVE_TO_ERC ? 'erc677token' : 'erc20token'
@@ -47,13 +48,13 @@ async function main() {
     logger.debug("calling foreignBridge.getPastEvents('UserRequestForAffirmation')")
     const foreignWithdrawals = hasForeignErc
       ? await erc20Contract.getPastEvents('Transfer', {
-        fromBlock: FOREIGN_DEPLOYMENT_BLOCK,
-        filter: { to: FOREIGN_BRIDGE_ADDRESS }
-      })
+          fromBlock: FOREIGN_DEPLOYMENT_BLOCK,
+          filter: { to: FOREIGN_BRIDGE_ADDRESS }
+        })
       : await foreignBridge.getPastEvents('UserRequestForAffirmation', {
-        fromBlock: FOREIGN_DEPLOYMENT_BLOCK
-      })
-    logger.debug("Done")
+          fromBlock: FOREIGN_DEPLOYMENT_BLOCK
+        })
+    logger.debug('Done')
     return {
       homeDeposits,
       foreignDeposits,

@@ -58,7 +58,13 @@ function compareTransferForeign(home) {
 
 async function main() {
   try {
-    const { foreignDeposits, homeDeposits, homeWithdrawals, foreignWithdrawals, hasForeignErc } = await eventsInfo()
+    const {
+      foreignDeposits,
+      homeDeposits,
+      homeWithdrawals,
+      foreignWithdrawals,
+      hasForeignErc
+    } = await eventsInfo()
 
     const onlyInHomeDeposits = homeDeposits.filter(compareDepositsHome(foreignDeposits))
     const onlyInForeignDeposits = foreignDeposits

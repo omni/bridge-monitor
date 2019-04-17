@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "author": "",
   "license": "ISC",
@@ -13,7 +15,7 @@
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
     "node-fetch": "^2.1.2",
-    "web3": "^1.0.0-beta.34"
+    "web3": "1.0.0-beta.34"
   },
   "engines": {
     "node": ">=8.9"

@@ -50,20 +50,6 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "validatorList",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [
       {
@@ -192,6 +178,11 @@
         "indexed": true,
         "name": "validator",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "reward",
+        "type": "address"
       }
     ],
     "name": "ValidatorAdded",
@@ -250,6 +241,10 @@
         "type": "address[]"
       },
       {
+        "name": "_initialRewards",
+        "type": "address[]"
+      },
+      {
         "name": "_owner",
         "type": "address"
       }
@@ -271,6 +266,10 @@
       {
         "name": "_validator",
         "type": "address"
+      },
+      {
+        "name": "_reward",
+        "type": "address"
       }
     ],
     "name": "addValidator",
@@ -291,6 +290,39 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "validatorList",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_validator",
+        "type": "address"
+      }
+    ],
+    "name": "getValidatorRewardAddress",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   }
 ]
