@@ -1,5 +1,4 @@
 require('dotenv').config()
-const BN = require('bignumber.js')
 const Web3 = require('web3')
 const logger = require('./logger')('alerts')
 const eventsInfo = require('./utils/events')
@@ -14,29 +13,50 @@ const web3Foreign = new Web3(foreignProvider)
 
 async function main() {
   try {
-    const { foreignDeposits, homeDeposits, homeWithdrawals, foreignWithdrawals } = await eventsInfo()
+    const {
+      foreignDeposits,
+      homeDeposits,
+      homeWithdrawals,
+      foreignWithdrawals
+    } = await eventsInfo()
 
     const xSignatures = foreignDeposits.filter(findDifferences(homeDeposits))
     const xAffirmations = homeWithdrawals.filter(findDifferences(foreignWithdrawals))
 
-    logger.debug("building misbehavior blocks")
+    logger.debug('building misbehavior blocks')
     const getBlockNumber = web3 => web3.eth.getBlockNumber()
-    const [ foreignBlockNumber, homeBlockNumber ] = (await Promise.all([web3Foreign, web3Home].map(getBlockNumber))).map(Web3.utils.toBN)
+    const [foreignBlockNumber, homeBlockNumber] = (await Promise.all(
+      [web3Foreign, web3Home].map(getBlockNumber)
+    )).map(Web3.utils.toBN)
 
     const baseRange = [false, false, false, false, false]
-    const xSignaturesMisbehavior = buildRangesObject(xSignatures.map(findMisbehaviorRange(foreignBlockNumber)).reduce(mergeRanges, baseRange))
-    const xAffirmationsMisbehavior = buildRangesObject(xAffirmations.map(findMisbehaviorRange(homeBlockNumber)).reduce(mergeRanges, baseRange))
+    const xSignaturesMisbehavior = buildRangesObject(
+      xSignatures.map(findMisbehaviorRange(foreignBlockNumber)).reduce(mergeRanges, baseRange)
+    )
+    const xAffirmationsMisbehavior = buildRangesObject(
+      xAffirmations.map(findMisbehaviorRange(homeBlockNumber)).reduce(mergeRanges, baseRange)
+    )
 
-    logger.debug("extracting most recent transactionHash")
-    const { transactionHash: xSignaturesMostRecentTxHash = '' } = xSignatures.sort(sortEvents).reverse()[0] || {}
-    const { transactionHash: xAffirmationsMostRecentTxHash = '' } = xAffirmations.sort(sortEvents).reverse()[0] || {}
+    logger.debug('extracting most recent transactionHash')
+    const { transactionHash: xSignaturesMostRecentTxHash = '' } =
+      xSignatures.sort(sortEvents).reverse()[0] || {}
+    const { transactionHash: xAffirmationsMostRecentTxHash = '' } =
+      xAffirmations.sort(sortEvents).reverse()[0] || {}
 
-    logger.debug("building transaction objects")
-    const foreignValidators = await Promise.all(xSignatures.map(event => findTxSender(web3Foreign)(event)))
-    const homeValidators = await Promise.all(xAffirmations.map(event => findTxSender(web3Home)(event)))
+    logger.debug('building transaction objects')
+    const foreignValidators = await Promise.all(
+      xSignatures.map(event => findTxSender(web3Foreign)(event))
+    )
+    const homeValidators = await Promise.all(
+      xAffirmations.map(event => findTxSender(web3Home)(event))
+    )
 
-    const xSignaturesTxs = xSignatures.map(normalizeEventInformation).reduce(buildTxList(foreignValidators), {})
-    const xAffirmationsTxs = xAffirmations.map(normalizeEventInformation).reduce(buildTxList(homeValidators), {})
+    const xSignaturesTxs = xSignatures
+      .map(normalizeEventInformation)
+      .reduce(buildTxList(foreignValidators), {})
+    const xAffirmationsTxs = xAffirmations
+      .map(normalizeEventInformation)
+      .reduce(buildTxList(homeValidators), {})
 
     logger.debug('Done')
 
@@ -155,9 +175,13 @@ const buildTxList = validatorsList => (acc, event, index) => {
 const findDifferences = src => dest => {
   const b = normalizeEventInformation(dest)
 
-  return src
-    .map(normalizeEventInformation)
-    .filter(a => a.referenceTx === b.referenceTx && a.recipient === b.recipient && a.value === b.value).length === 0
+  return (
+    src
+      .map(normalizeEventInformation)
+      .filter(
+        a => a.referenceTx === b.referenceTx && a.recipient === b.recipient && a.value === b.value
+      ).length === 0
+  )
 }
 
 /**

@@ -3,6 +3,7 @@ const Web3 = require('web3')
 const fetch = require('node-fetch')
 const logger = require('./logger')('validators')
 const { getBridgeABIs } = require('./utils/bridgeMode')
+const { getValidatorList } = require('./utils/validatorUtils')
 
 const {
   HOME_RPC_URL,
@@ -61,39 +62,21 @@ async function main(bridgeMode) {
       BRIDGE_VALIDATORS_ABI,
       foreignValidatorsAddress
     )
-    logger.debug("calling foreignBridgeValidators.getPastEvents('ValidatorAdded')")
-    const ValidatorAddedForeign = await foreignBridgeValidators.getPastEvents('ValidatorAdded', {
-      fromBlock: FOREIGN_DEPLOYMENT_BLOCK
-    })
-    logger.debug("calling foreignBridgeValidators.getPastEvents('ValidatorRemoved')")
-    const ValidatorRemovedForeign = await foreignBridgeValidators.getPastEvents(
-      'ValidatorRemoved',
-      {
-        fromBlock: FOREIGN_DEPLOYMENT_BLOCK
-      }
+
+    logger.debug('calling foreignBridgeValidators getValidatorList()')
+    const foreignValidators = await getValidatorList(
+      foreignValidatorsAddress,
+      web3Foreign.eth,
+      FOREIGN_DEPLOYMENT_BLOCK
     )
-    let foreignValidators = ValidatorAddedForeign.map(val => {
-      return val.returnValues.validator
-    })
-    const foreignRemovedValidators = ValidatorRemovedForeign.map(val => {
-      return val.returnValues.validator
-    })
-    foreignValidators = foreignValidators.filter(val => !foreignRemovedValidators.includes(val))
-    logger.debug("calling homeBridgeValidators.getPastEvents('ValidatorAdded')")
-    const ValidatorAdded = await homeBridgeValidators.getPastEvents('ValidatorAdded', {
-      fromBlock: HOME_DEPLOYMENT_BLOCK
-    })
-    logger.debug("calling homeBridgeValidators.getPastEvents('ValidatorRemoved')")
-    const ValidatorRemoved = await homeBridgeValidators.getPastEvents('ValidatorRemoved', {
-      fromBlock: HOME_DEPLOYMENT_BLOCK
-    })
-    let homeValidators = ValidatorAdded.map(val => {
-      return val.returnValues.validator
-    })
-    const homeRemovedValidators = ValidatorRemoved.map(val => {
-      return val.returnValues.validator
-    })
-    homeValidators = homeValidators.filter(val => !homeRemovedValidators.includes(val))
+
+    logger.debug('calling homeBridgeValidators getValidatorList()')
+    const homeValidators = await getValidatorList(
+      homeValidatorsAddress,
+      web3Home.eth,
+      HOME_DEPLOYMENT_BLOCK
+    )
+
     const homeBalances = {}
     logger.debug('calling asyncForEach homeValidators homeBalances')
     await asyncForEach(homeValidators, async v => {
@@ -115,7 +98,7 @@ async function main(bridgeMode) {
         leftTx: Number(leftTx),
         gasPrice: gasPriceInGwei
       }
-      if(!homeValidators.includes(v)) {
+      if (!homeValidators.includes(v)) {
         validatorsMatch = false
         foreignVBalances[v].onlyOnForeign = true
       }
@@ -131,7 +114,7 @@ async function main(bridgeMode) {
         leftTx: Number(leftTx),
         gasPrice: Number(gasPrice.toString(10))
       }
-      if(!foreignValidators.includes(v)) {
+      if (!foreignValidators.includes(v)) {
         validatorsMatch = false
         homeVBalances[v].onlyOnHome = true
       }
