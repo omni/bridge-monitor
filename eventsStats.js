@@ -63,7 +63,7 @@ async function main() {
       homeDeposits,
       homeWithdrawals,
       foreignWithdrawals,
-      hasForeignErc
+      isExternalErc20
     } = await eventsInfo()
 
     const onlyInHomeDeposits = homeDeposits.filter(compareDepositsHome(foreignDeposits))
@@ -71,10 +71,10 @@ async function main() {
       .concat([])
       .filter(compareDepositsForeign(homeDeposits))
 
-    const onlyInHomeWithdrawals = hasForeignErc
+    const onlyInHomeWithdrawals = isExternalErc20
       ? homeWithdrawals.filter(compareTransferHome(foreignWithdrawals))
       : homeWithdrawals.filter(compareDepositsForeign(foreignWithdrawals))
-    const onlyInForeignWithdrawals = hasForeignErc
+    const onlyInForeignWithdrawals = isExternalErc20
       ? foreignWithdrawals.filter(compareTransferForeign(homeWithdrawals))
       : foreignWithdrawals.filter(compareDepositsHome(homeWithdrawals))
 

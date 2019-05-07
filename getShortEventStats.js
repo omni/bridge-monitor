@@ -1,7 +1,7 @@
 require('dotenv').config()
 const Web3 = require('web3')
 const logger = require('./logger')('getShortEventStats.js')
-const { getBridgeABIs, BRIDGE_MODES } = require('./utils/bridgeMode')
+const { getBridgeABIs, BRIDGE_MODES, ERC_TYPES } = require('./utils/bridgeMode')
 
 const { HOME_RPC_URL, FOREIGN_RPC_URL, HOME_BRIDGE_ADDRESS, FOREIGN_BRIDGE_ADDRESS } = process.env
 const HOME_DEPLOYMENT_BLOCK = Number(process.env.HOME_DEPLOYMENT_BLOCK) || 0
@@ -14,6 +14,7 @@ const foreignProvider = new Web3.providers.HttpProvider(FOREIGN_RPC_URL)
 const web3Foreign = new Web3(foreignProvider)
 
 const ERC20_ABI = require('./abis/ERC20.abi')
+const { getTokenType } = require('./utils/ercUtils')
 
 async function main(bridgeMode) {
   try {
@@ -23,6 +24,7 @@ async function main(bridgeMode) {
     const erc20MethodName = bridgeMode === BRIDGE_MODES.NATIVE_TO_ERC ? 'erc677token' : 'erc20token'
     const erc20Address = await foreignBridge.methods[erc20MethodName]().call()
     const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, erc20Address)
+    const tokenType = await getTokenType(foreignBridge, FOREIGN_BRIDGE_ADDRESS)
     logger.debug("calling homeBridge.getPastEvents('UserRequestForSignature')")
     const homeDeposits = await homeBridge.getPastEvents('UserRequestForSignature', {
       fromBlock: HOME_DEPLOYMENT_BLOCK
@@ -37,7 +39,7 @@ async function main(bridgeMode) {
     })
     logger.debug("calling foreignBridge.getPastEvents('UserRequestForAffirmation')")
     const foreignWithdrawals =
-      bridgeMode === BRIDGE_MODES.ERC_TO_ERC || bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE
+      tokenType === ERC_TYPES.ERC20
         ? await erc20Contract.getPastEvents('Transfer', {
             fromBlock: FOREIGN_DEPLOYMENT_BLOCK,
             filter: { to: FOREIGN_BRIDGE_ADDRESS }

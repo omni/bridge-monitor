@@ -1,7 +1,8 @@
 require('dotenv').config()
 const Web3 = require('web3')
 const logger = require('../logger')('eventsUtils')
-const { BRIDGE_MODES, decodeBridgeMode, getBridgeABIs } = require('./bridgeMode')
+const { BRIDGE_MODES, decodeBridgeMode, getBridgeABIs, ERC_TYPES } = require('./bridgeMode')
+const { getTokenType } = require('./ercUtils')
 
 const { HOME_RPC_URL, FOREIGN_RPC_URL, HOME_BRIDGE_ADDRESS, FOREIGN_BRIDGE_ADDRESS } = process.env
 const HOME_DEPLOYMENT_BLOCK = Number(process.env.HOME_DEPLOYMENT_BLOCK) || 0
@@ -22,10 +23,10 @@ async function main() {
     const bridgeModeHash = await homeErcBridge.methods.getBridgeMode().call()
     const bridgeMode = decodeBridgeMode(bridgeModeHash)
     const { HOME_ABI, FOREIGN_ABI } = getBridgeABIs(bridgeMode)
-    const hasForeignErc =
-      bridgeMode === BRIDGE_MODES.ERC_TO_ERC || bridgeMode === BRIDGE_MODES.ERC_TO_NATIVE
     const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS)
     const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS)
+    const tokenType = await getTokenType(foreignBridge, FOREIGN_BRIDGE_ADDRESS)
+    const isExternalErc20 = tokenType === ERC_TYPES.ERC20
     const erc20MethodName = bridgeMode === BRIDGE_MODES.NATIVE_TO_ERC ? 'erc677token' : 'erc20token'
     const erc20Address = await foreignBridge.methods[erc20MethodName]().call()
     const erc20Contract = new web3Foreign.eth.Contract(ERC20_ABI, erc20Address)
@@ -46,7 +47,7 @@ async function main() {
     })
 
     logger.debug("calling foreignBridge.getPastEvents('UserRequestForAffirmation')")
-    const foreignWithdrawals = hasForeignErc
+    const foreignWithdrawals = isExternalErc20
       ? await erc20Contract.getPastEvents('Transfer', {
           fromBlock: FOREIGN_DEPLOYMENT_BLOCK,
           filter: { to: FOREIGN_BRIDGE_ADDRESS }
@@ -60,7 +61,7 @@ async function main() {
       foreignDeposits,
       homeWithdrawals,
       foreignWithdrawals,
-      hasForeignErc
+      isExternalErc20
     }
   } catch (e) {
     logger.error(e)
