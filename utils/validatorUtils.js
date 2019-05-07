@@ -2,6 +2,7 @@
 
 const bridgeValidatorsAbi = require('../abis/BridgeValidators.abi')
 const logger = require('../logger')('validatorsUtils')
+const { getPastEvents } = require('./contract')
 
 const parseValidatorEvent = event => {
   if (
@@ -51,7 +52,7 @@ const validatorList = async contract => {
   }
 }
 
-const getValidatorList = async (address, eth, fromBlock) => {
+const getValidatorList = async (address, eth, fromBlock, toBlock) => {
   logger.debug('getting validatorList')
   const validatorsContract = new eth.Contract(bridgeValidatorsAbi, address)
   const validators = await validatorList(validatorsContract)
@@ -62,7 +63,13 @@ const getValidatorList = async (address, eth, fromBlock) => {
 
   logger.debug('getting validatorsEvents')
   const contract = new eth.Contract([], address)
-  const validatorsEvents = await contract.getPastEvents('allEvents', { fromBlock })
+  const validatorsEvents = await getPastEvents({
+    contract,
+    event: 'allEvents',
+    fromBlock,
+    toBlock,
+    options: {}
+  })
 
   return processValidatorsEvents(validatorsEvents)
 }
