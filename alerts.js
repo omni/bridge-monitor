@@ -2,6 +2,7 @@ require('dotenv').config()
 const Web3 = require('web3')
 const logger = require('./logger')('alerts')
 const eventsInfo = require('./utils/events')
+const { getBlockNumber } = require('./utils/contract')
 
 const { HOME_RPC_URL, FOREIGN_RPC_URL } = process.env
 
@@ -24,10 +25,7 @@ async function main() {
     const xAffirmations = homeWithdrawals.filter(findDifferences(foreignWithdrawals))
 
     logger.debug('building misbehavior blocks')
-    const getBlockNumber = web3 => web3.eth.getBlockNumber()
-    const [foreignBlockNumber, homeBlockNumber] = (await Promise.all(
-      [web3Foreign, web3Home].map(getBlockNumber)
-    )).map(Web3.utils.toBN)
+    const [homeBlockNumber, foreignBlockNumber] = await getBlockNumber(web3Home, web3Foreign)
 
     const baseRange = [false, false, false, false, false]
     const xSignaturesMisbehavior = buildRangesObject(
