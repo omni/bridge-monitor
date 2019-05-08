@@ -7,6 +7,6 @@ Due to reorganization of the token bridge repos into one monorepo the sources of
 What does it mean for you? If you would like
   * to raise an issue against the monitor, follow [this link](https://github.com/poanetwork/tokenbridge/issues/new).
   * to find if a new version of the monitor is ready in the monorepo, visit [the releases tab](https://github.com/poanetwork/tokenbridge/releases).
-  * to get access to the last changes made in this repo, check the release [`2.2.0`](https://github.com/poanetwork/bridge-monitor/releases/tag/2.2.0) or the [`master`] branch.
+  * to get access to the last changes made in this repo, check the release [`2.2.0`](https://github.com/poanetwork/bridge-monitor/releases/tag/2.2.0) or the [`master`](https://github.com/poanetwork/bridge-monitor/tree/master) branch.
 
 If you still have a question what you need to do, please visit [the TokenBridge forum](https://forum.poa.network/c/tokenbridge) and raise your question there.
