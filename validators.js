@@ -4,6 +4,7 @@ const fetch = require('node-fetch')
 const logger = require('./logger')('validators')
 const { getBridgeABIs } = require('./utils/bridgeMode')
 const { getValidatorList } = require('./utils/validatorUtils')
+const { getBlockNumber } = require('./utils/contract')
 
 const {
   HOME_RPC_URL,
@@ -56,6 +57,9 @@ async function main(bridgeMode) {
       homeValidatorsAddress
     )
 
+    logger.debug('getting last block numbers')
+    const [homeBlockNumber, foreignBlockNumber] = await getBlockNumber(web3Home, web3Foreign)
+
     logger.debug('calling foreignBridge.methods.validatorContract().call()')
     const foreignValidatorsAddress = await foreignBridge.methods.validatorContract().call()
     const foreignBridgeValidators = new web3Foreign.eth.Contract(
@@ -67,14 +71,16 @@ async function main(bridgeMode) {
     const foreignValidators = await getValidatorList(
       foreignValidatorsAddress,
       web3Foreign.eth,
-      FOREIGN_DEPLOYMENT_BLOCK
+      FOREIGN_DEPLOYMENT_BLOCK,
+      foreignBlockNumber
     )
 
     logger.debug('calling homeBridgeValidators getValidatorList()')
     const homeValidators = await getValidatorList(
       homeValidatorsAddress,
       web3Home.eth,
-      HOME_DEPLOYMENT_BLOCK
+      HOME_DEPLOYMENT_BLOCK,
+      homeBlockNumber
     )
 
     const homeBalances = {}
