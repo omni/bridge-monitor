@@ -16,6 +16,7 @@ const HOME_DEPLOYMENT_BLOCK = Number(process.env.HOME_DEPLOYMENT_BLOCK) || 0;
 const FOREIGN_DEPLOYMENT_BLOCK = Number(process.env.FOREIGN_DEPLOYMENT_BLOCK) || 0;
 const GAS_PRICE_SPEED_TYPE = process.env.GAS_PRICE_SPEED_TYPE;
 const GAS_LIMIT = process.env.GAS_LIMIT;
+const { GAS_PRICE_FALLBACK } = process.env;
 
 const homeProvider = new Web3.providers.HttpProvider(HOME_RPC_URL);
 const web3Home = new Web3(homeProvider);
