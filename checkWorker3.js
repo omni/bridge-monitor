@@ -12,8 +12,7 @@ async function checkWorker3() {
     logger.debug("Done");
     return transfers;
   } catch(e) {
-    logger.error('checkWorker3.js', e);
-    throw e;
+    logger.error(e);
   }
 }
 checkWorker3();
