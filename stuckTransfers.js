@@ -72,36 +72,30 @@ function compareTransfers(transfersNormal){
 }
 
 async function main(){
-  try {
-    const tokenContract = new web3Foreign.eth.Contract(ABI_TransferWithoutData, POA20_ADDRESS);
-    const tokenContractWithData = new web3Foreign.eth.Contract(ABI_withData, POA20_ADDRESS);
-    logger.debug('calling tokenContract.getPastEvents Transfer');
-    let transfersNormal = await tokenContract.getPastEvents('Transfer', {
-      filter: {
-        to: FOREIGN_BRIDGE_ADDRESS
-      },
-      fromBlock: FOREIGN_DEPLOYMENT_BLOCK,
-      toBlock: 'latest'
-    });
-    logger.debug('calling tokenContractWithData.getPastEvents Transfer');
-    let transfersWithData = await tokenContractWithData.getPastEvents('Transfer', {
-      filter: {
-        to: FOREIGN_BRIDGE_ADDRESS
-      },
-      fromBlock: FOREIGN_DEPLOYMENT_BLOCK,
-      toBlock: 'latest'
-    });
-    const stuckTransfers = transfersNormal.filter(compareTransfers(transfersWithData))
-    logger.debug('Done');
-    return {
-      stuckTransfers,
-      total: stuckTransfers.length,
-      lastChecked: Math.floor(Date.now() / 1000)
-    }
-  } catch(e) {
-    logger.error(e);
-    throw e;
+  const tokenContract = new web3Foreign.eth.Contract(ABI_TransferWithoutData, POA20_ADDRESS);
+  const tokenContractWithData = new web3Foreign.eth.Contract(ABI_withData, POA20_ADDRESS);
+  logger.debug('calling tokenContract.getPastEvents Transfer');
+  let transfersNormal = await tokenContract.getPastEvents('Transfer', {
+    filter: {
+      to: FOREIGN_BRIDGE_ADDRESS
+    },
+    fromBlock: FOREIGN_DEPLOYMENT_BLOCK,
+    toBlock: 'latest'
+  });
+  logger.debug('calling tokenContractWithData.getPastEvents Transfer');
+  let transfersWithData = await tokenContractWithData.getPastEvents('Transfer', {
+    filter: {
+      to: FOREIGN_BRIDGE_ADDRESS
+    },
+    fromBlock: FOREIGN_DEPLOYMENT_BLOCK,
+    toBlock: 'latest'
+  });
+  const stuckTransfers = transfersNormal.filter(compareTransfers(transfersWithData))
+  logger.debug('Done');
+  return {
+    stuckTransfers,
+    total: stuckTransfers.length,
+    lastChecked: Math.floor(Date.now() / 1000)
   }
-
 }
 module.exports = main;

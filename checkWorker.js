@@ -21,10 +21,8 @@ async function checkWorker() {
     if (!vBalances) throw new Error('vBalances is empty: ' + JSON.stringify(vBalances));
     fs.writeFileSync(__dirname + '/responses/validators.json', JSON.stringify(vBalances,null,4));
     logger.debug("Done");
-    return status;
   } catch(e) {
     logger.error(e);
-    throw e;
   }
 }
 checkWorker();

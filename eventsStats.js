@@ -37,37 +37,31 @@ function compareDepositsForeign(home){
 }
 
 async function main(){
-  try {
-    const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS);
-    const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS);
-    logger.debug("calling homeBridge.getPastEvents('Deposit')");
-    let homeDeposits = await homeBridge.getPastEvents('Deposit', {fromBlock: HOME_DEPLOYMENT_BLOCK});
-    logger.debug("calling foreignBridge.getPastEvents('Deposit')");
-    let foreignDeposits = await foreignBridge.getPastEvents('Deposit', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
-    logger.debug("calling homeBridge.getPastEvents('Withdraw')");
-    let homeWithdrawals = await homeBridge.getPastEvents('Withdraw', {fromBlock: HOME_DEPLOYMENT_BLOCK});
-    logger.debug("calling foreignBridge.getPastEvents('Withdraw')");
-    let foreignWithdrawals = await foreignBridge.getPastEvents('Withdraw', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
-    
-    const onlyInHomeDeposits = homeDeposits.filter(compareDepositsHome(foreignDeposits))
-    const onlyInForeignDeposits = foreignDeposits.concat([]).filter(compareDepositsForeign(homeDeposits))
+  const homeBridge = new web3Home.eth.Contract(HOME_ABI, HOME_BRIDGE_ADDRESS);
+  const foreignBridge = new web3Foreign.eth.Contract(FOREIGN_ABI, FOREIGN_BRIDGE_ADDRESS);
+  logger.debug("calling homeBridge.getPastEvents('Deposit')");
+  let homeDeposits = await homeBridge.getPastEvents('Deposit', {fromBlock: HOME_DEPLOYMENT_BLOCK});
+  logger.debug("calling foreignBridge.getPastEvents('Deposit')");
+  let foreignDeposits = await foreignBridge.getPastEvents('Deposit', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
+  logger.debug("calling homeBridge.getPastEvents('Withdraw')");
+  let homeWithdrawals = await homeBridge.getPastEvents('Withdraw', {fromBlock: HOME_DEPLOYMENT_BLOCK});
+  logger.debug("calling foreignBridge.getPastEvents('Withdraw')");
+  let foreignWithdrawals = await foreignBridge.getPastEvents('Withdraw', {fromBlock: FOREIGN_DEPLOYMENT_BLOCK});
 
-    const onlyInHomeWithdrawals = homeWithdrawals.filter(compareDepositsForeign(foreignWithdrawals))
-    const onlyInForeignWithdrawals = foreignWithdrawals.filter(compareDepositsHome(homeWithdrawals))
-    
-    logger.debug("Done");
-    return {
-      onlyInHomeDeposits,
-      onlyInForeignDeposits,
-      onlyInHomeWithdrawals,
-      onlyInForeignWithdrawals,
-      lastChecked: Math.floor(Date.now() / 1000),
-    }
-  } catch(e) {
-    logger.error(e);
-    throw e;
+  const onlyInHomeDeposits = homeDeposits.filter(compareDepositsHome(foreignDeposits))
+  const onlyInForeignDeposits = foreignDeposits.concat([]).filter(compareDepositsForeign(homeDeposits))
+
+  const onlyInHomeWithdrawals = homeWithdrawals.filter(compareDepositsForeign(foreignWithdrawals))
+  const onlyInForeignWithdrawals = foreignWithdrawals.filter(compareDepositsHome(homeWithdrawals))
+
+  logger.debug("Done");
+  return {
+    onlyInHomeDeposits,
+    onlyInForeignDeposits,
+    onlyInHomeWithdrawals,
+    onlyInForeignWithdrawals,
+    lastChecked: Math.floor(Date.now() / 1000),
   }
-
 }
 
 module.exports = main;
